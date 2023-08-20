@@ -54,7 +54,7 @@ class State extends EventEmitter {
       fileName,
       JSON.stringify({
         best: this.#best,
-      })
+      }),
     );
   }
 
@@ -66,7 +66,7 @@ class State extends EventEmitter {
       console.log(
         `Loaded previous state, current number is with a record of ${
           this.#best
-        }`
+        }`,
       );
     } catch (error) {
       console.log("No previous state found");

@@ -94,7 +94,7 @@ export async function initClient() {
   }
   console.log(
     "Continuing on previous messages where it ended on ",
-    streakNumber
+    streakNumber,
   );
 
   client.on(Events.MessageCreate, (message) => {

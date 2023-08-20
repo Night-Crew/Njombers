@@ -40,6 +40,6 @@ if (
   !config.adminIds
 ) {
   throw new Error(
-    "Missing config values for either clientId, clientSecret, channelId, token, uniqueUsers, debugChannelId or adminIds"
+    "Missing config values for either clientId, clientSecret, channelId, token, uniqueUsers, debugChannelId or adminIds",
   );
 }
