@@ -3,6 +3,7 @@ import { Client, Events, GatewayIntentBits, REST, Routes } from "discord.js";
 import { config } from "./config.js";
 import { checkValidity } from "./rules.js";
 import state from "./state.js";
+import { Queue } from "./queue.js";
 
 let client;
 
@@ -10,6 +11,8 @@ const lenghtOfMessageCache = config.uniqueUsers * 2 + 5;
 const discordRestVersion = "10";
 
 let lastMessages = [];
+
+const messagesQueue = new Queue();
 
 // Create a new client instance
 export async function initClient() {
@@ -70,11 +73,16 @@ export async function initClient() {
     const message = streakCheckMessages[index];
     try {
       // Check without the current message when checking for unique users
-      checkValidity(
-        message,
-        lastMessages.slice(index, index + 1),
-        streakNumber
-      );
+      const lastMessagesCleaned = lastMessages.slice(index, index + 1);
+      for (const previousMessage of lastMessagesCleaned) {
+        if (previousMessage.author.id === message.author.id) {
+          const previousNames = lastMessagesCleaned
+            .map((message) => message.author.id)
+            .join(", ");
+          console.warn("previous IDs", previousNames);
+          throw new Error("Too few unique people");
+        }
+      }
       streakNumber += 1;
     } catch (error) {
       console.warn(error.message);
@@ -89,24 +97,26 @@ export async function initClient() {
     streakNumber
   );
 
-  client.on(Events.MessageCreate, async (message) => {
-    // Ignore messages from other channels
-    if (message.channelId !== config.channelId) return;
-    // Ignore messages from bots
-    if (message.author.bot) return;
-    console.log("received", message.content, "from", message.author.id);
-    try {
-      checkValidity(message, lastMessages);
-      state.increment();
-    } catch (error) {
-      state.reset();
-      console.warn(error.message);
-      await message.react("❌");
-      // Post errors in debug channel with a link to the message
-      await debugChannel.send(`${error.message} ${message.url}`);
-    }
-    lastMessages.pop();
-    lastMessages.unshift(message);
+  client.on(Events.MessageCreate, (message) => {
+    messagesQueue.push(async () => {
+      // Ignore messages from other channels
+      if (message.channelId !== config.channelId) return;
+      // Ignore messages from bots
+      if (message.author.bot) return;
+      console.log("received", message.content, "from", message.author.id);
+      try {
+        checkValidity(message, lastMessages);
+        state.increment();
+      } catch (error) {
+        state.reset();
+        console.warn(error.message);
+        await message.react("❌");
+        // Post errors in debug channel with a link to the message
+        await debugChannel.send(`${error.message} ${message.url}`);
+      }
+      lastMessages.pop();
+      lastMessages.unshift(message);
+    });
   });
 
   const commands = [
@@ -123,12 +133,12 @@ export async function initClient() {
       ],
     },
     {
-      name: "overridestreak",
-      description: "Override the number streak",
+      name: "overridebest",
+      description: "Override the best number streak",
       options: [
         {
-          name: "streak",
-          description: "The streak to override to",
+          name: "best",
+          description: "The best number streak to override to",
           type: 4,
           required: true,
         },
@@ -153,15 +163,15 @@ export async function initClient() {
       state.currentNumber = number;
       await interaction.reply(`Number overridden to ${number}`);
     }
-    // Override streak
+    // Override best
     else if (interaction.commandName === commands[1].name) {
-      const streak = Number(interaction.options.get("streak")?.value);
-      if (isNaN(streak)) {
+      const best = Number(interaction.options.get("best")?.value);
+      if (isNaN(best)) {
         await interaction.reply("Not a number");
         return;
       }
-      state.streak = streak;
-      await interaction.reply(`Streak overridden to ${streak}`);
+      state.best = best;
+      await interaction.reply(`Best overridden to ${best}`);
     }
   });
 

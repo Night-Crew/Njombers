@@ -1,5 +1,3 @@
-import state from "./state.js";
-
 export function checkValidity(message, previousMessages, currentNumber) {
   const number = parseMessage(message);
 

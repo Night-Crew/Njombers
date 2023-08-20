@@ -5,12 +5,12 @@ const fileName = "state.json";
 
 class State extends EventEmitter {
   #currentNumber = 0;
-  #streak = 0;
+  #best = 0;
 
   set currentNumber(number) {
     this.#currentNumber = number;
-    if (this.#currentNumber > this.#streak) {
-      this.#streak = this.#currentNumber;
+    if (this.#currentNumber > this.#best) {
+      this.#best = this.#currentNumber;
     }
     this.emitUpdate();
   }
@@ -19,19 +19,19 @@ class State extends EventEmitter {
     return this.#currentNumber;
   }
 
-  set streak(number) {
-    this.#streak = number;
+  set best(number) {
+    this.#best = number;
     this.emitUpdate();
   }
 
-  get streak() {
-    return this.#streak;
+  get best() {
+    return this.#best;
   }
 
   increment() {
     this.#currentNumber += 1;
-    if (this.#currentNumber > this.#streak) {
-      this.#streak = this.#currentNumber;
+    if (this.#currentNumber > this.#best) {
+      this.#best = this.#currentNumber;
     }
     this.emitUpdate();
   }
@@ -45,7 +45,7 @@ class State extends EventEmitter {
     this.persist();
     this.emit("update", {
       currentNumber: this.#currentNumber,
-      streak: this.#streak,
+      best: this.#best,
     });
   }
 
@@ -53,7 +53,7 @@ class State extends EventEmitter {
     fs.promises.writeFile(
       fileName,
       JSON.stringify({
-        streak: this.#streak,
+        best: this.#best,
       })
     );
   }
@@ -62,10 +62,10 @@ class State extends EventEmitter {
     try {
       const data = await fs.promises.readFile(fileName, "utf-8");
       const previousState = JSON.parse(data);
-      this.#streak = previousState.streak;
+      this.#best = previousState.best;
       console.log(
-        `Loaded previous state, current number is with a streak of ${
-          this.#streak
+        `Loaded previous state, current number is with a record of ${
+          this.#best
         }`
       );
     } catch (error) {
