@@ -39,13 +39,16 @@ export function checkValidity(message, previousMessages, currentNumber) {
   // TODO: Implement this
 
   // - Any person posts with fewer than 5 unique people posting before them. This carries over restarts.
-  for (const previousMessage of previousMessages) {
+  for (const [idx, previousMessage] of previousMessages.entries()) {
     if (previousMessage.author.id === message.author.id) {
       const previousNames = previousMessages
         .map((message) => message.author.id)
         .join(", ");
       console.warn("previous IDs", previousNames);
-      throw new Error("Too few unique people");
+      const messagesInBetween = previousMessages.slice(idx + 1).length;
+      throw new Error(
+        `There are only "${messagesInBetween}" messages between this message and the last message from "${message.author.displayName}".`,
+      );
     }
   }
 }
