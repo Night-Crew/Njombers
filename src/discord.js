@@ -4,7 +4,7 @@ import { config } from "./config.js";
 import { checkValidity } from "./rules.js";
 import state from "./state.js";
 import { Queue } from "./queue.js";
-import { version } from "../package.json" assert { type: "json" };
+import pkg from "../package.json" assert { type: "json" };
 
 let client;
 
@@ -179,7 +179,7 @@ export async function initClient() {
       await interaction.reply(`Best overridden to ${best}`);
       // Version
     } else if (interaction.commandName === commands[2].name) {
-      await interaction.reply(`Version: ${version}`);
+      await interaction.reply(`Version: ${pkg.version}`);
     }
   });
 
