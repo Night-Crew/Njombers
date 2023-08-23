@@ -106,7 +106,7 @@ export async function initClient() {
       if (message.author.bot) return;
       console.log("received", message.content, "from", message.author.id);
       try {
-        checkValidity(message, lastMessages);
+        checkValidity(message, lastMessages, state.currentNumber);
         state.increment();
       } catch (error) {
         state.reset();
