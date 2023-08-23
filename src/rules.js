@@ -8,6 +8,14 @@ export function checkValidity(message, previousMessages, currentNumber) {
     }
   }
 
+  // (Custom rule for readability) — The number cannot start with a zero.
+  {
+    const match = message.content.match(/^0/);
+    if (match) {
+      throw new Error(`Message "${message.content}" starts with a zero.`);
+    }
+  }
+
   // Any other characters must be clearly separated from the main number with a space!
   {
     const match = message.content.match(/^(\d+)([^\s])?/);

@@ -6,10 +6,6 @@ describe("valid", () => {
     expect(() => checkValidity({ content: "1" }, [], 0)).not.toThrowError();
   });
 
-  test("a number with leading zeroes is valid", () => {
-    expect(() => checkValidity({ content: "001" }, [], 0)).not.toThrowError();
-  });
-
   test("a number with a space after it is valid", () => {
     expect(() => checkValidity({ content: "1 " }, [], 0)).not.toThrowError();
   });
@@ -27,6 +23,14 @@ describe("invalid", () => {
       checkValidity({ content: "something" }, [], 0),
     ).toThrowErrorMatchingInlineSnapshot(
       '"Message \\"something\\" does not start with a number."',
+    );
+  });
+
+  test("a number with leading zeroes is invalid", () => {
+    expect(() =>
+      checkValidity({ content: "001" }, [], 0),
+    ).toThrowErrorMatchingInlineSnapshot(
+      '"Message \\"001\\" starts with a zero."',
     );
   });
 
