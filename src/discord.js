@@ -4,6 +4,7 @@ import { config } from "./config.js";
 import { checkValidity } from "./rules.js";
 import state from "./state.js";
 import { Queue } from "./queue.js";
+import { version } from "../package.json";
 
 let client;
 
@@ -144,6 +145,10 @@ export async function initClient() {
         },
       ],
     },
+    {
+      name: "version",
+      description: "Get the version of the bot",
+    },
   ];
 
   client.on("interactionCreate", async (interaction) => {
@@ -172,6 +177,9 @@ export async function initClient() {
       }
       state.best = best;
       await interaction.reply(`Best overridden to ${best}`);
+      // Version
+    } else if (interaction.commandName === commands[2].name) {
+      await interaction.reply(`Version: ${version}`);
     }
   });
 
