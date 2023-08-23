@@ -1,6 +1,15 @@
 export function checkValidity(message, previousMessages, currentNumber) {
+  // - The post must start with the number. Main number cannot be spelt out.
   {
-    // Any other characters must be clearly separated from the main number with a space!
+    if (!/^\d/g.test(message.content)) {
+      throw new Error(
+        `Message "${message.content}" does not start with a number.`,
+      );
+    }
+  }
+
+  // Any other characters must be clearly separated from the main number with a space!
+  {
     const match = message.content.match(/^(\d+)([^\s])?/);
     if (match) {
       const [, number, extra] = match;
@@ -24,7 +33,6 @@ export function checkValidity(message, previousMessages, currentNumber) {
   }
 
   // - No foreign languages or posts deemed 'not clear by the other members. The exact number must be clearly visible fully!
-  // - The post must start with the number. Main number cannot be spelt out.
   // - You are not allowed to spell out the number by using emojis.
 
   // - A message is edited/deleted since that chain started.
