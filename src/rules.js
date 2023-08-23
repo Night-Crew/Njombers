@@ -1,11 +1,16 @@
 export function checkValidity(message, previousMessages, currentNumber) {
-  const number = parseMessage(message);
-
-  if (currentNumber === 0 && number !== 1) {
-    throw new Error("First message must be 1");
-  }
 
   // - The wrong number is posted.
+  {
+    const match = message.content.match(/^(\d+\s)|(^\d+)$/);
+    const number = !match ? 0 : Number(match[0]);
+    if (currentNumber + 1 !== number) {
+      throw new Error(
+        `Wrong number, expected "${currentNumber + 1}" got "${number}".`,
+      );
+    }
+  }
+
   // - No foreign languages or posts deemed 'not clear by the other members. The exact number must be clearly visible fully!
   // - The post must start with the number. Main number cannot be spelt out.
   // - Any other characters must be clearly separated from the main number with a space!
@@ -24,10 +29,4 @@ export function checkValidity(message, previousMessages, currentNumber) {
       throw new Error("Too few unique people");
     }
   }
-}
-
-function parseMessage(message) {
-  const match = message.content.match(/^(\d+\s)|(^\d+)$/);
-  if (!match) return 0;
-  return Number(match[0]);
 }
