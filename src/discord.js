@@ -4,7 +4,7 @@ import { config } from "./config.js";
 import { checkValidity } from "./rules.js";
 import state from "./state.js";
 import { Queue } from "./queue.js";
-import { version } from "../package.json";
+import { version } from "../package.json" assert { type: "json" };
 
 let client;
 
