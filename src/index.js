@@ -1,5 +1,8 @@
 import state from "./state.js";
 import { initClient, updateState } from "./discord.js";
+import { version } from "../package.json";
+
+console.log(`Starting version ${version}`);
 
 await state.loadState();
 
