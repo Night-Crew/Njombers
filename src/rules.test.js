@@ -62,6 +62,14 @@ describe("invalid", () => {
     );
   });
 
+  test("posting a number below the current number is invalid", () => {
+    expect(() =>
+      checkValidity({ content: "1" }, [], 2),
+    ).toThrowErrorMatchingInlineSnapshot(
+      '"Wrong number, expected \\"3\\" got \\"1\\"."',
+    );
+  });
+
   test("posting within 5 messages of your last message is invalid (4)", () => {
     expect(() =>
       checkValidity(
