@@ -1,4 +1,16 @@
 export function checkValidity(message, previousMessages, currentNumber) {
+  {
+    // Any other characters must be clearly separated from the main number with a space!
+    const match = message.content.match(/^(\d+)([^\s])?/);
+    if (match) {
+      const [, number, extra] = match;
+      if (extra) {
+        throw new Error(
+          `Extra character "${extra}" found after number "${number}".`,
+        );
+      }
+    }
+  }
 
   // - The wrong number is posted.
   {
@@ -13,7 +25,6 @@ export function checkValidity(message, previousMessages, currentNumber) {
 
   // - No foreign languages or posts deemed 'not clear by the other members. The exact number must be clearly visible fully!
   // - The post must start with the number. Main number cannot be spelt out.
-  // - Any other characters must be clearly separated from the main number with a space!
   // - You are not allowed to spell out the number by using emojis.
 
   // - A message is edited/deleted since that chain started.
