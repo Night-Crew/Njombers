@@ -47,7 +47,7 @@ export function checkValidity(message, previousMessages, currentNumber) {
       console.warn("previous IDs", previousNames);
       const messagesInBetween = previousMessages.slice(idx + 1).length;
       throw new Error(
-        `There are only "${messagesInBetween}" messages between this message and the last message from "${message.author.displayName}".`,
+        `There are only "${messagesInBetween}" message(s) between this message and the last message from "${message.author.displayName}".`,
       );
     }
   }

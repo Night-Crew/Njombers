@@ -76,7 +76,7 @@ describe("invalid", () => {
         5,
       ),
     ).toThrowErrorMatchingInlineSnapshot(
-      '"There are only \\"4\\" messages between this message and the last message from \\"Alice\\"."',
+      '"There are only \\"4\\" message(s) between this message and the last message from \\"Alice\\"."',
     );
   });
 
@@ -94,7 +94,7 @@ describe("invalid", () => {
         5,
       ),
     ).toThrowErrorMatchingInlineSnapshot(
-      '"There are only \\"3\\" messages between this message and the last message from \\"Bob\\"."',
+      '"There are only \\"3\\" message(s) between this message and the last message from \\"Bob\\"."',
     );
   });
 
@@ -112,7 +112,7 @@ describe("invalid", () => {
         5,
       ),
     ).toThrowErrorMatchingInlineSnapshot(
-      '"There are only \\"2\\" messages between this message and the last message from \\"Charlie\\"."',
+      '"There are only \\"2\\" message(s) between this message and the last message from \\"Charlie\\"."',
     );
   });
 
@@ -130,7 +130,7 @@ describe("invalid", () => {
         5,
       ),
     ).toThrowErrorMatchingInlineSnapshot(
-      '"There are only \\"1\\" messages between this message and the last message from \\"Dave\\"."',
+      '"There are only \\"1\\" message(s) between this message and the last message from \\"Dave\\"."',
     );
   });
 
@@ -148,7 +148,7 @@ describe("invalid", () => {
         5,
       ),
     ).toThrowErrorMatchingInlineSnapshot(
-      '"There are only \\"0\\" messages between this message and the last message from \\"Erin\\"."',
+      '"There are only \\"0\\" message(s) between this message and the last message from \\"Erin\\"."',
     );
   });
 });
