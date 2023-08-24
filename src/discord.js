@@ -8,7 +8,7 @@ import pkg from "../package.json" assert { type: "json" };
 
 let client;
 
-const lenghtOfMessageCache = config.uniqueUsers * 2 + 5;
+const lengthOfMessageCache = config.uniqueUsers * 2 + 5;
 const discordRestVersion = "10";
 
 let lastMessages = [];
@@ -58,7 +58,7 @@ export async function initClient() {
   const messagesSinceReset = await channel.messages.fetch(
     state.lastResetMessageId
       ? { after: state.lastResetMessageId } // Get all messages since the last reset
-      : { limit: lenghtOfMessageCache }, // Get the minimum amount of messages to start with
+      : { limit: lengthOfMessageCache }, // Get the minimum amount of messages to start with
   );
 
   let lastMessages = Array.from(messagesSinceReset.values())
