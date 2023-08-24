@@ -6,6 +6,7 @@ describe("valid", () => {
     expect(checkValidity({ content: "1" }, [], 0)).toMatchInlineSnapshot(
       `
       {
+        "number": 1,
         "valid": true,
       }
     `,
@@ -16,6 +17,7 @@ describe("valid", () => {
     expect(checkValidity({ content: "1 " }, [], 0)).toMatchInlineSnapshot(
       `
       {
+        "number": 1,
         "valid": true,
       }
     `,
@@ -27,6 +29,7 @@ describe("valid", () => {
       checkValidity({ content: "1 a message can go here" }, [], 0),
     ).toMatchInlineSnapshot(`
       {
+        "number": 1,
         "valid": true,
       }
     `);

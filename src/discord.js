@@ -1,7 +1,7 @@
 // Require the necessary discord.js classes
 import { Client, Events, GatewayIntentBits, REST, Routes } from "discord.js";
 import { config } from "./config.js";
-import { checkValidity } from "./rules.js";
+import { checkValidity, findStreak } from "./rules.js";
 import state from "./state.js";
 import { Queue } from "./queue.js";
 import pkg from "../package.json" assert { type: "json" };
@@ -11,8 +11,6 @@ let client;
 const lengthOfMessageCache = config.uniqueUsers * 2 + 5;
 const discordRestVersion = "10";
 
-let lastMessages = [];
-
 const messagesQueue = new Queue();
 
 // Create a new client instance
@@ -20,6 +18,7 @@ export async function initClient() {
   if (client) {
     throw new Error("Client already initialized");
   }
+
   client = new Client({
     intents: [
       GatewayIntentBits.Guilds,
@@ -28,6 +27,7 @@ export async function initClient() {
       GatewayIntentBits.GuildMessageReactions,
     ],
   });
+
   const rest = new REST({ version: discordRestVersion }).setToken(config.token);
 
   // When the client is ready, run this code (only once)
@@ -45,14 +45,131 @@ export async function initClient() {
   if (!channel) {
     throw new Error("Channel not found");
   }
+
   if (!channel.isTextBased()) {
     throw new Error("Channel is not text based");
   }
+
   if (!debugChannel) {
     throw new Error("Debug channel not found");
   }
+
   if (!debugChannel.isTextBased()) {
     throw new Error("Debug channel is not text based");
+  }
+
+  async function handleMessage(message) {
+    // Ignore messages from other channels
+    if (message.channelId !== config.channelId) return;
+
+    // Ignore messages from bots
+    if (message.author.bot) {
+      // Keep the last messages up to date including the bot message itself. Otherwise you can run
+      // into this scenario:
+      // 1. Alice posts   1
+      // 2. Bob posts     2
+      // 3. Charlie posts 3
+      // 4. Dave posts    4
+      // 5. Eve posts     6 (wrong)
+      // 6. Bot posts something about Eve being wrong
+      // 7. Alice posts   1 (including the bot, there are 5 messages in between; excluding the bot there are 4)
+      lastMessages.pop();
+      lastMessages.unshift(message);
+
+      return;
+    }
+
+    let validationResult = checkValidity(
+      message,
+      lastMessages,
+      state.currentNumber,
+    );
+
+    if (validationResult.valid) {
+      let highscore = state.increment();
+      if (highscore) {
+        await Promise.allSettled([
+          message.react("🎉"),
+          message.react("👏"),
+          message.react("🥳"),
+        ]);
+      }
+    } else {
+      let responsesByType = {
+        "no-number": [
+          "Bericht start niet met een getal. Foei!",
+          "Ai, de getallekes waren op vanochtend precies.",
+          "Waar is het getal? Ik zie het niet!",
+          "Voor mij 100gram prepare alstublieft. Oh, en een getal in uw bericht.",
+          `Wist je dat \`${message.content[0]}\` geen getal is? Dus ja, dat is dan fout.`,
+        ],
+        "leading-zero": [
+          "Bericht begint met een `0`. Nie goe!",
+          "Nee, nee, nee, een `0` is nie goe!",
+          "Een `0`? Vooraan? Ja dat is fout.",
+          "Dat is een `0` vooraan. Dat is jammer.",
+        ],
+        "trailing-character": ({ character, number }) => [
+          `Extra karakter \`${character}\` gevonden na het getal \`${number}\`.`,
+          `Er staat een \`${character}\` na het getal \`${number}\`. Wat doet dat daar eigenlijk?`,
+          `Waarom staat er een \`${character}\` na het getal \`${number}\`?`,
+          `Maar wat doet die \`${character}\` daar nu na \`${number}\`?`,
+          `Hallo bakker, voor mij \`${number}${character}\` ${
+            number === 1 ? "brood" : "broden"
+          } alstublieft. Dat verstaat die mens toch niet?`,
+        ],
+        "wrong-number": ({ expected, actual }) => [
+          `Fout getal, ik had een \`${expected}\` verwacht, maar zag een \`${actual}\`. Dat is niet zo goed geteld!`,
+          `Oei, ik had een \`${expected}\` verwacht, maar zag een \`${actual}\`.`,
+          `Wist je dat na \`${
+            expected - 1
+          }\` het getalletje \`${expected}\` komt? En dus niet \`${actual}\`.`,
+          `Jammer maar helaas pindakaas, ik had een \`${expected}\` verwacht, maar zag een \`${actual}\`.`,
+          `Seg vriendschap, \`${
+            expected - 1
+          } + 1\` is \`${expected}\` en niet \`${actual}\`.`,
+        ],
+        "too-few-unique-people": ({ count }) => [
+          `Oei, er zaten maar \`${count}\` ${
+            count === 1 ? "bericht" : "berichten"
+          } tussen dit bericht en jouw laatste bericht.`,
+          `Hebde gij leren tellen in de zwemschool? Er ${
+            count === 1 ? "zit" : "zitten"
+          } hier maar \`${count}\` ${
+            count === 1 ? "bericht" : "berichten"
+          } tussen dit en uw laatste bericht.`,
+          `Goed gedaan! Maar wel fout. Helaas. Er ${
+            count === 1 ? "zit" : "zitten"
+          } maar \`${count}\` ${
+            count === 1 ? "bericht" : "berichten"
+          } tussen dit en uw laatste bericht.`,
+          `NOOOOOOOOOOOOOOOOO! Kijk eens wanneer uw laatste bericht was. Yep, dat was maar \`${count}\` ${
+            count === 1 ? "bericht" : "berichten"
+          } geleden.`,
+        ],
+      };
+
+      let responses = responsesByType[validationResult.reason];
+      if (typeof responses === "function") {
+        responses = responses(validationResult);
+      }
+
+      let response = responses[Math.floor(Math.random() * responses.length)];
+
+      if (state.currentNumber === state.best && state.best > 0) {
+        response += `\n\nWel een nieuw record 🥳! We zijn tot \`${state.currentNumber}\` geraakt. Applausje voor iedereen! 🎉 (Behalve voor ${message.author})`;
+      } else {
+        response += `\n\nWe zijn tot \`${state.currentNumber}\` geraakt. Het beste tot nu toe was \`${state.best}\`.`;
+      }
+
+      state.reset(message.id);
+
+      await message.react("❌");
+      await message.reply(response);
+    }
+
+    lastMessages.pop();
+    lastMessages.unshift(message);
   }
 
   const messagesSinceReset = await channel.messages.fetch(
@@ -61,41 +178,30 @@ export async function initClient() {
       : { limit: lengthOfMessageCache }, // Get the minimum amount of messages to start with
   );
 
-  let lastMessages = Array.from(messagesSinceReset.values())
-    .filter((message) => !message.author.bot)
-    .slice(0, config.uniqueUsers);
+  const lastMessages = [];
 
-  // Check if it's a correct streak
-  let streakNumber = Number(lastMessages?.[0]?.content) || 0;
-  const streakCheckMessages = lastMessages.slice(1).reverse();
-  let validStreak = true;
-  for (let index = 0; index < streakCheckMessages.length; index++) {
-    const message = streakCheckMessages[index];
-    try {
-      // Check without the current message when checking for unique users
-      const lastMessagesCleaned = lastMessages.slice(index, index + 1);
-      for (const previousMessage of lastMessagesCleaned) {
-        if (previousMessage.author.id === message.author.id) {
-          const previousNames = lastMessagesCleaned
-            .map((message) => message.author.id)
-            .join(", ");
-          console.warn("previous IDs", previousNames);
-          throw new Error("Too few unique people");
-        }
-      }
-      streakNumber += 1;
-    } catch (error) {
-      console.warn(error.message);
-      validStreak = false;
+  // Only get the last X messages, and stop early instead of going through _all_ messages since the
+  // reset.
+  for (let message of messagesSinceReset.values()) {
+    lastMessages.push(message);
+    if (lastMessages.length === config.uniqueUsers) {
+      break;
     }
   }
-  if (validStreak) {
-    state.currentNumber = streakNumber;
+
+  // Find current streak
+  let streak = findStreak(Array.from(messagesSinceReset.values()));
+  if (streak.valid) {
+    state.currentNumber = streak.number - 1;
+  } else {
+    state.currentNumber = 0;
   }
-  console.log(
-    "Continuing on previous messages where it ended on ",
-    streakNumber,
-  );
+
+  if (streak.message) {
+    handleMessage(streak.message);
+  }
+
+  console.log("Continuing from streak:", state.currentNumber);
 
   client.on(Events.MessageUpdate, (_oldMessage, message) => {
     messagesQueue.push(async () => {
@@ -123,119 +229,7 @@ export async function initClient() {
   });
 
   client.on(Events.MessageCreate, (message) => {
-    messagesQueue.push(async () => {
-      // Ignore messages from other channels
-      if (message.channelId !== config.channelId) return;
-
-      // Ignore messages from bots
-      if (message.author.bot) {
-        // Keep the last messages up to date including the bot message itself. Otherwise you can run
-        // into this scenario:
-        // 1. Alice posts   1
-        // 2. Bob posts     2
-        // 3. Charlie posts 3
-        // 4. Dave posts    4
-        // 5. Eve posts     6 (wrong)
-        // 6. Bot posts something about Eve being wrong
-        // 7. Alice posts   1 (including the bot, there are 5 messages in between; excluding the bot there are 4)
-        lastMessages.pop();
-        lastMessages.unshift(message);
-
-        return;
-      }
-
-      let validationResult = checkValidity(
-        message,
-        lastMessages,
-        state.currentNumber,
-      );
-
-      if (validationResult.valid) {
-        let highscore = state.increment();
-        if (highscore) {
-          await Promise.allSettled([
-            message.react("🎉"),
-            message.react("👏"),
-            message.react("🥳"),
-          ]);
-        }
-      } else {
-        let responsesByType = {
-          "no-number": [
-            "Bericht start niet met een getal. Foei!",
-            "Ai, de getallekes waren op vanochtend precies.",
-            "Waar is het getal? Ik zie het niet!",
-            "Voor mij 100gram prepare alstublieft. Oh, en een getal in uw bericht.",
-            `Wist je dat \`${message.content[0]}\` geen getal is? Dus ja, dat is dan fout.`,
-          ],
-          "leading-zero": [
-            "Bericht begint met een `0`. Nie goe!",
-            "Nee, nee, nee, een `0` is nie goe!",
-            "Een `0`? Vooraan? Ja dat is fout.",
-            "Dat is een `0` vooraan. Dat is jammer.",
-          ],
-          "trailing-character": ({ character, number }) => [
-            `Extra karakter \`${character}\` gevonden na het getal \`${number}\`.`,
-            `Er staat een \`${character}\` na het getal \`${number}\`. Wat doet dat daar eigenlijk?`,
-            `Waarom staat er een \`${character}\` na het getal \`${number}\`?`,
-            `Maar wat doet die \`${character}\` daar nu na \`${number}\`?`,
-            `Hallo bakker, voor mij \`${number}${character}\` ${
-              number === 1 ? "brood" : "broden"
-            } alstublieft. Dat verstaat die mens toch niet?`,
-          ],
-          "wrong-number": ({ expected, actual }) => [
-            `Fout getal, ik had een \`${expected}\` verwacht, maar zag een \`${actual}\`. Dat is niet zo goed geteld!`,
-            `Oei, ik had een \`${expected}\` verwacht, maar zag een \`${actual}\`.`,
-            `Wist je dat na \`${
-              expected - 1
-            }\` het getalletje \`${expected}\` komt? En dus niet \`${actual}\`.`,
-            `Jammer maar helaas pindakaas, ik had een \`${expected}\` verwacht, maar zag een \`${actual}\`.`,
-            `Seg vriendschap, \`${
-              expected - 1
-            } + 1\` is \`${expected}\` en niet \`${actual}\`.`,
-          ],
-          "too-few-unique-people": ({ count }) => [
-            `Oei, er zaten maar \`${count}\` ${
-              count === 1 ? "bericht" : "berichten"
-            } tussen dit bericht en jouw laatste bericht.`,
-            `Hebde gij leren tellen in de zwemschool? Er ${
-              count === 1 ? "zit" : "zitten"
-            } hier maar \`${count}\` ${
-              count === 1 ? "bericht" : "berichten"
-            } tussen dit en uw laatste bericht.`,
-            `Goed gedaan! Maar wel fout. Helaas. Er ${
-              count === 1 ? "zit" : "zitten"
-            } maar \`${count}\` ${
-              count === 1 ? "bericht" : "berichten"
-            } tussen dit en uw laatste bericht.`,
-            `NOOOOOOOOOOOOOOOOO! Kijk eens wanneer uw laatste bericht was. Yep, dat was maar \`${count}\` ${
-              count === 1 ? "bericht" : "berichten"
-            } geleden.`,
-          ],
-        };
-
-        let responses = responsesByType[validationResult.reason];
-        if (typeof responses === "function") {
-          responses = responses(validationResult);
-        }
-
-        let response = responses[Math.floor(Math.random() * responses.length)];
-
-        if (state.currentNumber === state.best && state.best > 0) {
-          response += `\n\nWel een nieuw record 🥳! We zijn tot \`${state.currentNumber}\` geraakt. Applausje voor iedereen! 🎉 (Behalve voor ${message.author})`;
-        } else {
-          response += `\n\nWe zijn tot \`${state.currentNumber}\` geraakt. Het beste tot nu toe was \`${state.best}\`.`;
-        }
-
-        state.reset(message.id);
-
-        await message.react("❌");
-        await message.reply(response);
-      }
-
-      lastMessages.pop();
-      lastMessages.unshift(message);
-    });
+    messagesQueue.push(() => handleMessage(message));
   });
 
   const commands = [
