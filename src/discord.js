@@ -101,7 +101,9 @@ export async function initClient() {
           "Ai, de getallekes waren op vanochtend precies.",
           "Waar is het getal? Ik zie het niet!",
           "Voor mij 100gram prepare alstublieft. Oh, en een getal in uw bericht.",
-          `Wist je dat \`${message.content[0]}\` geen getal is? Dus ja, dat is dan fout.`,
+          `Wist je dat \`${
+            message.content.split(" ")[0]
+          }\` geen getal is? Dus ja, dat is dan fout.`,
         ],
         "leading-zero": [
           "Bericht begint met een `0`. Nie goe!",
