@@ -2,9 +2,7 @@ export function checkValidity(message, previousMessages, currentNumber) {
   // - The post must start with the number. Main number cannot be spelt out.
   {
     if (!/^\d/g.test(message.content)) {
-      throw new Error(
-        `Message "${message.content}" does not start with a number.`,
-      );
+      throw new Error(`Message does not start with a number.`);
     }
   }
 
@@ -12,7 +10,7 @@ export function checkValidity(message, previousMessages, currentNumber) {
   {
     const match = message.content.match(/^0/);
     if (match) {
-      throw new Error(`Message "${message.content}" starts with a zero.`);
+      throw new Error(`Message starts with a zero.`);
     }
   }
 

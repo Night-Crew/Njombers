@@ -22,7 +22,7 @@ describe("invalid", () => {
     expect(() =>
       checkValidity({ content: "something" }, [], 0),
     ).toThrowErrorMatchingInlineSnapshot(
-      '"Message \\"something\\" does not start with a number."',
+      '"Message does not start with a number."',
     );
   });
 
@@ -30,7 +30,7 @@ describe("invalid", () => {
     expect(() =>
       checkValidity({ content: "001" }, [], 0),
     ).toThrowErrorMatchingInlineSnapshot(
-      '"Message \\"001\\" starts with a zero."',
+      '"Message starts with a zero."',
     );
   });
 
@@ -38,7 +38,7 @@ describe("invalid", () => {
     expect(() =>
       checkValidity({ content: " 1" }, [], 0),
     ).toThrowErrorMatchingInlineSnapshot(
-      '"Message \\" 1\\" does not start with a number."',
+      '"Message does not start with a number."',
     );
   });
 
