@@ -318,8 +318,20 @@ export async function initClient() {
     // Override last reset message id
     else if (interaction.commandName === commands[2].name) {
       const id = interaction.options.get("message-id")?.value ?? null;
+      const message = await channel.messages.fetch(id);
+      if (!message) {
+        await interaction.reply("Message not found");
+        return;
+      }
+      // Fetch all messages since the last reset message
+      channel.messages.fetch({
+        after: id,
+      });
       state.lastResetMessageId = id;
-      await interaction.reply(`Last reset message id overridden to \`${id}\``);
+      state.lastResetAt = new Date(message.createdTimestamp);
+      await interaction.reply(
+        `Last reset message id overridden to ${message.url}`,
+      );
     }
 
     // Print current state

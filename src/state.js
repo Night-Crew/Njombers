@@ -34,6 +34,11 @@ class State extends EventEmitter {
     return this.#currentNumber;
   }
 
+  set lastResetAt(value) {
+    this.#lastResetAt = value;
+    this.persist();
+  }
+
   get lastResetAt() {
     return this.#lastResetAt;
   }
