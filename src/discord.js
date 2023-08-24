@@ -55,16 +55,15 @@ export async function initClient() {
     throw new Error("Debug channel is not text based");
   }
 
-  const lastMessagesCollection = await channel.messages.fetch({
-    limit: lenghtOfMessageCache,
-  });
-  lastMessages = Array.from(lastMessagesCollection.values())
+  const messagesSinceReset = await channel.messages.fetch(
+    state.lastResetMessageId
+      ? { after: state.lastResetMessageId }
+      : { limit: lenghtOfMessageCache },
+  );
+
+  let lastMessages = Array.from(messagesSinceReset.values())
     .filter((message) => !message.author.bot)
     .slice(0, config.uniqueUsers);
-
-  for (const message of lastMessages) {
-    console.log(message.author.id, message.content);
-  }
 
   // Check if it's a correct streak
   let streakNumber = Number(lastMessages?.[0]?.content) || 0;
@@ -103,6 +102,12 @@ export async function initClient() {
       // Ignore messages from other channels
       if (message.channelId !== config.channelId) return;
 
+      // Check if the original message was created in a previous chain. If so, ignore it.
+      let createdAt = new Date(message.createdTimestamp);
+      if (createdAt < state.lastResetAt) {
+        return;
+      }
+
       let responses = [
         "Hey, je hebt je bericht aangepast. Dat mag niet!",
         `Awel, wat zijn we van plan? Bericht aanpassen? Stout.`,
@@ -110,10 +115,10 @@ export async function initClient() {
       ];
 
       let response = responses[Math.floor(Math.random() * responses.length)];
-      await message.reply(response);
+      let botMessage = await message.reply(response);
       await message.react("❌");
 
-      state.reset();
+      state.reset(botMessage.id);
     });
   });
 
@@ -222,7 +227,7 @@ export async function initClient() {
           response += `\n\nWe zijn tot \`${state.currentNumber}\` geraakt. Het beste tot nu toe was \`${state.best}\`.`;
         }
 
-        state.reset();
+        state.reset(message.id);
 
         await message.react("❌");
         await message.reply(response);
