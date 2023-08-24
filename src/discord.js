@@ -240,7 +240,7 @@ export async function initClient() {
 
   const commands = [
     {
-      name: "overridenumber",
+      name: "override-current",
       description: "Override the current number",
       options: [
         {
@@ -252,7 +252,7 @@ export async function initClient() {
       ],
     },
     {
-      name: "overridebest",
+      name: "override-best",
       description: "Override the best number streak",
       options: [
         {
