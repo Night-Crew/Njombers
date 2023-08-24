@@ -129,7 +129,6 @@ export async function initClient() {
       if (validationResult.valid) {
         state.increment();
       } else {
-        state.reset();
         await message.react("❌");
 
         let responsesByType = {
@@ -192,7 +191,15 @@ export async function initClient() {
         }
 
         let response = responses[Math.floor(Math.random() * responses.length)];
+
+        if (state.currentNumber === state.best) {
+          response += `\n\nWel een nieuw record 🥳! We zijn tot \`${state.currentNumber}\` geraakt. Applausje voor iedereen! 🎉 (Behalve voor ${message.author})`;
+        } else {
+          response += `\n\nWe zijn tot \`${state.currentNumber}\` geraakt. Het beste tot nu toe was \`${state.best}\`.`;
+        }
+
         await message.reply(response);
+        state.reset();
       }
       lastMessages.pop();
       lastMessages.unshift(message);
