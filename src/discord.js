@@ -172,17 +172,37 @@ export async function initClient() {
     lastMessages.unshift(message);
   }
 
-  const messagesSinceReset = await channel.messages.fetch(
-    state.lastResetMessageId
-      ? { after: state.lastResetMessageId } // Get all messages since the last reset
-      : { limit: lengthOfMessageCache }, // Get the minimum amount of messages to start with
-  );
+  // Get all messages since the last reset
+  let messagesCache = state.lastResetMessageId
+    ? new Set(
+        (
+          await channel.messages.fetch({ after: state.lastResetMessageId })
+        ).values(),
+      )
+    : new Set([]);
+
+  // If we don't have enough messages yet (because we need to guarantee that there are X unique
+  // messages in between), fetch more messages (up to the limit)
+  if (messagesCache.size < lengthOfMessageCache) {
+    // Get the minimum amount of messages to start with
+    let additionalMessages = await channel.messages.fetch({
+      limit: lengthOfMessageCache - messagesCache.size,
+    });
+
+    for (const message of additionalMessages.values()) {
+      messagesCache.add(message);
+    }
+  }
 
   const lastMessages = [];
 
   // Only get the last X messages, and stop early instead of going through _all_ messages since the
   // reset.
-  for (const message of messagesSinceReset.values()) {
+  let combinedMessages = Array.from(messagesCache).sort(
+    (a, z) => z.position - a.position,
+  );
+
+  for (const message of combinedMessages.values()) {
     lastMessages.push(message);
     if (lastMessages.length === config.uniqueUsers) {
       break;
@@ -190,7 +210,7 @@ export async function initClient() {
   }
 
   // Find current streak
-  const streak = findStreak(Array.from(messagesSinceReset.values()));
+  const streak = findStreak(Array.from(messagesCache.values()));
   if (streak.valid) {
     state.currentNumber = streak.number - 1;
   } else {
