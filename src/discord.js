@@ -264,6 +264,18 @@ export async function initClient() {
       ],
     },
     {
+      name: "override-last-reset-message-id",
+      description: "Override the last reset message id",
+      options: [
+        {
+          name: "message-id",
+          description: "The last reset message id to override to",
+          type: 3,
+          required: true,
+        },
+      ],
+    },
+    {
       name: "version",
       description: "Get the version of the bot",
     },
@@ -276,6 +288,7 @@ export async function initClient() {
       await interaction.reply("You are not allowed to use this command");
       return;
     }
+
     // Override number
     if (interaction.commandName === commands[0].name) {
       const number = Number(interaction.options.get("number")?.value);
@@ -286,6 +299,7 @@ export async function initClient() {
       state.currentNumber = number;
       await interaction.reply(`Number overridden to ${number}`);
     }
+
     // Override best
     else if (interaction.commandName === commands[1].name) {
       const best = Number(interaction.options.get("best")?.value);
@@ -295,8 +309,17 @@ export async function initClient() {
       }
       state.best = best;
       await interaction.reply(`Best overridden to ${best}`);
-      // Version
-    } else if (interaction.commandName === commands[2].name) {
+    }
+
+    // Override last reset message id
+    else if (interaction.commandName === commands[2].name) {
+      const id = interaction.options.get("message-id")?.value ?? null;
+      state.lastResetMessageId = id;
+      await interaction.reply(`Last reset message id overridden to \`${id}\``);
+    }
+
+    // Version
+    else if (interaction.commandName === commands[3].name) {
       await interaction.reply(`Version: ${pkg.version}`);
     }
   });
