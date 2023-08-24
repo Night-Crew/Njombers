@@ -3,9 +3,21 @@ import fs from "fs";
 
 const fileName = "state.json";
 
+const highScoreState = {
+  // No highscore has been achieved in the current streak
+  NO_HIGHSCORE: 0,
+
+  // The first highscore has been achieved in the current streak
+  FIRST_HIGHSCORE: 1,
+
+  // All new numbers are highscores
+  HIGHSCORES: 2,
+};
+
 class State extends EventEmitter {
   #currentNumber = 0;
   #best = 0;
+  #highScoreState = highScoreState.NO_HIGHSCORE;
 
   set currentNumber(number) {
     this.#currentNumber = number;
@@ -32,8 +44,15 @@ class State extends EventEmitter {
     this.#currentNumber += 1;
     if (this.#currentNumber > this.#best) {
       this.#best = this.#currentNumber;
+      if (this.#highScoreState === highScoreState.NO_HIGHSCORE) {
+        this.#highScoreState = highScoreState.FIRST_HIGHSCORE;
+        return true;
+      } else if (this.#highScoreState === highScoreState.FIRST_HIGHSCORE) {
+        this.#highScoreState = highScoreState.HIGHSCORES;
+      }
     }
     this.emitUpdate();
+    return false;
   }
 
   reset() {

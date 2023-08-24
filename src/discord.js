@@ -127,10 +127,15 @@ export async function initClient() {
       );
 
       if (validationResult.valid) {
-        state.increment();
+        let highscore = state.increment();
+        if (highscore) {
+          await Promise.allSettled([
+            message.react("🎉"),
+            message.react("👏"),
+            message.react("🥳"),
+          ]);
+        }
       } else {
-        await message.react("❌");
-
         let responsesByType = {
           "no-number": [
             "Bericht start niet met een getal. Foei!",
@@ -198,9 +203,12 @@ export async function initClient() {
           response += `\n\nWe zijn tot \`${state.currentNumber}\` geraakt. Het beste tot nu toe was \`${state.best}\`.`;
         }
 
-        await message.reply(response);
         state.reset();
+
+        await message.react("❌");
+        await message.reply(response);
       }
+
       lastMessages.pop();
       lastMessages.unshift(message);
     });
