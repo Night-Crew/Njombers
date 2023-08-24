@@ -57,8 +57,8 @@ export async function initClient() {
 
   const messagesSinceReset = await channel.messages.fetch(
     state.lastResetMessageId
-      ? { after: state.lastResetMessageId }
-      : { limit: lenghtOfMessageCache },
+      ? { after: state.lastResetMessageId } // Get all messages since the last reset
+      : { limit: lenghtOfMessageCache }, // Get the minimum amount of messages to start with
   );
 
   let lastMessages = Array.from(messagesSinceReset.values())
