@@ -221,7 +221,7 @@ export async function initClient() {
 
         let response = responses[Math.floor(Math.random() * responses.length)];
 
-        if (state.currentNumber === state.best) {
+        if (state.currentNumber === state.best && state.best > 0) {
           response += `\n\nWel een nieuw record 🥳! We zijn tot \`${state.currentNumber}\` geraakt. Applausje voor iedereen! 🎉 (Behalve voor ${message.author})`;
         } else {
           response += `\n\nWe zijn tot \`${state.currentNumber}\` geraakt. Het beste tot nu toe was \`${state.best}\`.`;
