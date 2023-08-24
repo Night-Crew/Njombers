@@ -53,10 +53,6 @@ export function checkValidity(message, previousMessages, currentNumber) {
   // - Any person posts with fewer than 5 unique people posting before them. This carries over restarts.
   for (const [idx, previousMessage] of previousMessages.entries()) {
     if (previousMessage.author.id === message.author.id) {
-      const previousNames = previousMessages
-        .map((message) => message.author.id)
-        .join(", ");
-      console.warn("previous IDs", previousNames);
       const messagesInBetween = previousMessages.slice(0, idx).length;
       return {
         valid: false,
