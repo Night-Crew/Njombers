@@ -2,7 +2,7 @@ export function checkValidity(message, previousMessages, currentNumber) {
   // - The post must start with the number. Main number cannot be spelt out.
   {
     if (!/^\d/g.test(message.content)) {
-      throw new Error(`Message does not start with a number.`);
+      return { valid: false, reason: "no-number" };
     }
   }
 
@@ -10,7 +10,7 @@ export function checkValidity(message, previousMessages, currentNumber) {
   {
     const match = message.content.match(/^0/);
     if (match) {
-      throw new Error(`Message starts with a zero.`);
+      return { valid: false, reason: "leading-zero" };
     }
   }
 
@@ -20,9 +20,12 @@ export function checkValidity(message, previousMessages, currentNumber) {
     if (match) {
       const [, number, extra] = match;
       if (extra) {
-        throw new Error(
-          `Extra character "${extra}" found after number "${number}".`,
-        );
+        return {
+          valid: false,
+          reason: "trailing-character",
+          character: extra,
+          number,
+        };
       }
     }
   }
@@ -32,9 +35,12 @@ export function checkValidity(message, previousMessages, currentNumber) {
     const match = message.content.match(/^(\d+\s)|(^\d+)$/);
     const number = !match ? 0 : Number(match[0]);
     if (currentNumber + 1 !== number) {
-      throw new Error(
-        `Wrong number, expected "${currentNumber + 1}" got "${number}".`,
-      );
+      return {
+        valid: false,
+        reason: "wrong-number",
+        expected: currentNumber + 1,
+        actual: number,
+      };
     }
   }
 
@@ -52,9 +58,13 @@ export function checkValidity(message, previousMessages, currentNumber) {
         .join(", ");
       console.warn("previous IDs", previousNames);
       const messagesInBetween = previousMessages.slice(0, idx).length;
-      throw new Error(
-        `There are only "${messagesInBetween}" message(s) between this message and the last message from "${message.author.displayName}".`,
-      );
+      return {
+        valid: false,
+        reason: "too-few-unique-people",
+        count: messagesInBetween,
+      };
     }
   }
+
+  return { valid: true };
 }
