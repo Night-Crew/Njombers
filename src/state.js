@@ -1,7 +1,7 @@
 import { EventEmitter } from "events";
 import fs from "fs";
 
-const fileName = "state.json";
+const fileName = "./state/state.json";
 
 const highScoreState = {
   // No highscore has been achieved in the current streak

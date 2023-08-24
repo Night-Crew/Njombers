@@ -4,6 +4,8 @@ services:
     build: .
     container_name: Njombers
     restart: unless-stopped
+    volumes:
+      - state-data:/app/state/
     environment:
       - CHANNEL_ID
       - CLIENT_ID
@@ -12,3 +14,6 @@ services:
       - UNIQUE_USERS
       - DEBUG_CHANNEL_ID
       - ADMIN_IDS
+
+volumes:
+  state-data:
