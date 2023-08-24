@@ -3,79 +3,124 @@ import { checkValidity } from "./rules";
 
 describe("valid", () => {
   test("a correct number is valid", () => {
-    expect(() => checkValidity({ content: "1" }, [], 0)).not.toThrowError();
+    expect(checkValidity({ content: "1" }, [], 0)).toMatchInlineSnapshot(
+      `
+      {
+        "valid": true,
+      }
+    `,
+    );
   });
 
   test("a number with a space after it is valid", () => {
-    expect(() => checkValidity({ content: "1 " }, [], 0)).not.toThrowError();
+    expect(checkValidity({ content: "1 " }, [], 0)).toMatchInlineSnapshot(
+      `
+      {
+        "valid": true,
+      }
+    `,
+    );
   });
 
   test("a number with a space and a message after it is valid", () => {
-    expect(() =>
+    expect(
       checkValidity({ content: "1 a message can go here" }, [], 0),
-    ).not.toThrowError();
+    ).toMatchInlineSnapshot(`
+      {
+        "valid": true,
+      }
+    `);
   });
 });
 
 describe("invalid", () => {
   test("a non-number message is invalid", () => {
-    expect(() =>
+    expect(
       checkValidity({ content: "something" }, [], 0),
-    ).toThrowErrorMatchingInlineSnapshot(
-      '"Message does not start with a number."',
-    );
+    ).toMatchInlineSnapshot(`
+      {
+        "reason": "no-number",
+        "valid": false,
+      }
+    `);
   });
 
   test("a number with leading zeroes is invalid", () => {
-    expect(() =>
-      checkValidity({ content: "001" }, [], 0),
-    ).toThrowErrorMatchingInlineSnapshot(
-      '"Message starts with a zero."',
+    expect(checkValidity({ content: "001" }, [], 0)).toMatchInlineSnapshot(
+      `
+      {
+        "reason": "leading-zero",
+        "valid": false,
+      }
+    `,
     );
   });
 
   test("a character before a number is invalid", () => {
-    expect(() =>
-      checkValidity({ content: " 1" }, [], 0),
-    ).toThrowErrorMatchingInlineSnapshot(
-      '"Message does not start with a number."',
+    expect(checkValidity({ content: " 1" }, [], 0)).toMatchInlineSnapshot(
+      `
+      {
+        "reason": "no-number",
+        "valid": false,
+      }
+    `,
     );
   });
 
   test("a non-space character after a number is invalid", () => {
-    expect(() =>
-      checkValidity({ content: "1?" }, [], 0),
-    ).toThrowErrorMatchingInlineSnapshot(
-      '"Extra character \\"?\\" found after number \\"1\\"."',
+    expect(checkValidity({ content: "1?" }, [], 0)).toMatchInlineSnapshot(
+      `
+      {
+        "character": "?",
+        "number": "1",
+        "reason": "trailing-character",
+        "valid": false,
+      }
+    `,
     );
   });
 
   test("posting the wrong number is invalid", () => {
-    expect(() =>
-      checkValidity({ content: "2" }, [], 0),
-    ).toThrowErrorMatchingInlineSnapshot(
-      '"Wrong number, expected \\"1\\" got \\"2\\"."',
+    expect(checkValidity({ content: "2" }, [], 0)).toMatchInlineSnapshot(
+      `
+      {
+        "actual": 2,
+        "expected": 1,
+        "reason": "wrong-number",
+        "valid": false,
+      }
+    `,
     );
   });
 
   test("posting the same number as the previous number is invalid (double post)", () => {
-    expect(() =>
-      checkValidity({ content: "2" }, [], 2),
-    ).toThrowErrorMatchingInlineSnapshot(
-      '"Wrong number, expected \\"3\\" got \\"2\\"."',
+    expect(checkValidity({ content: "2" }, [], 2)).toMatchInlineSnapshot(
+      `
+      {
+        "actual": 2,
+        "expected": 3,
+        "reason": "wrong-number",
+        "valid": false,
+      }
+    `,
     );
   });
 
   test("posting a number below the current number is invalid", () => {
-    expect(() =>
-      checkValidity({ content: "1" }, [], 2),
-    ).toThrowErrorMatchingInlineSnapshot(
-      '"Wrong number, expected \\"3\\" got \\"1\\"."',
+    expect(checkValidity({ content: "1" }, [], 2)).toMatchInlineSnapshot(
+      `
+      {
+        "actual": 1,
+        "expected": 3,
+        "reason": "wrong-number",
+        "valid": false,
+      }
+    `,
     );
   });
 
   test("posting within 5 messages of your last message is invalid (4)", () => {
-    expect(() =>
+    expect(
       checkValidity(
         { content: "6", author: { id: "alice", displayName: "Alice" } },
         [
@@ -87,13 +132,17 @@ describe("invalid", () => {
         ],
         5,
       ),
-    ).toThrowErrorMatchingInlineSnapshot(
-      '"There are only \\"4\\" message(s) between this message and the last message from \\"Alice\\"."',
-    );
+    ).toMatchInlineSnapshot(`
+      {
+        "count": 4,
+        "reason": "too-few-unique-people",
+        "valid": false,
+      }
+    `);
   });
 
   test("posting within 5 messages of your last message is invalid (3)", () => {
-    expect(() =>
+    expect(
       checkValidity(
         { content: "6", author: { id: "bob", displayName: "Bob" } },
         [
@@ -105,13 +154,17 @@ describe("invalid", () => {
         ],
         5,
       ),
-    ).toThrowErrorMatchingInlineSnapshot(
-      '"There are only \\"3\\" message(s) between this message and the last message from \\"Bob\\"."',
-    );
+    ).toMatchInlineSnapshot(`
+      {
+        "count": 3,
+        "reason": "too-few-unique-people",
+        "valid": false,
+      }
+    `);
   });
 
   test("posting within 5 messages of your last message is invalid (2)", () => {
-    expect(() =>
+    expect(
       checkValidity(
         { content: "6", author: { id: "charlie", displayName: "Charlie" } },
         [
@@ -123,13 +176,17 @@ describe("invalid", () => {
         ],
         5,
       ),
-    ).toThrowErrorMatchingInlineSnapshot(
-      '"There are only \\"2\\" message(s) between this message and the last message from \\"Charlie\\"."',
-    );
+    ).toMatchInlineSnapshot(`
+      {
+        "count": 2,
+        "reason": "too-few-unique-people",
+        "valid": false,
+      }
+    `);
   });
 
   test("posting within 5 messages of your last message is invalid (1)", () => {
-    expect(() =>
+    expect(
       checkValidity(
         { content: "6", author: { id: "dave", displayName: "Dave" } },
         [
@@ -141,13 +198,17 @@ describe("invalid", () => {
         ],
         5,
       ),
-    ).toThrowErrorMatchingInlineSnapshot(
-      '"There are only \\"1\\" message(s) between this message and the last message from \\"Dave\\"."',
-    );
+    ).toMatchInlineSnapshot(`
+      {
+        "count": 1,
+        "reason": "too-few-unique-people",
+        "valid": false,
+      }
+    `);
   });
 
   test("posting within 5 messages of your last message is invalid (0)", () => {
-    expect(() =>
+    expect(
       checkValidity(
         { content: "6", author: { id: "erin", displayName: "Erin" } },
         [
@@ -159,8 +220,12 @@ describe("invalid", () => {
         ],
         5,
       ),
-    ).toThrowErrorMatchingInlineSnapshot(
-      '"There are only \\"0\\" message(s) between this message and the last message from \\"Erin\\"."',
-    );
+    ).toMatchInlineSnapshot(`
+      {
+        "count": 0,
+        "reason": "too-few-unique-people",
+        "valid": false,
+      }
+    `);
   });
 });
