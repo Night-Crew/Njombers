@@ -104,7 +104,21 @@ export async function initClient() {
       if (message.channelId !== config.channelId) return;
 
       // Ignore messages from bots
-      if (message.author.bot) return;
+      if (message.author.bot) {
+        // Keep the last messages up to date including the bot message itself. Otherwise you can run
+        // into this scenario:
+        // 1. Alice posts   1
+        // 2. Bob posts     2
+        // 3. Charlie posts 3
+        // 4. Dave posts    4
+        // 5. Eve posts     6 (wrong)
+        // 6. Bot posts something about Eve being wrong
+        // 7. Alice posts   1 (including the bot, there are 5 messages in between; excluding the bot there are 4)
+        lastMessages.pop();
+        lastMessages.unshift(message);
+
+        return;
+      }
 
       let validationResult = checkValidity(
         message,
