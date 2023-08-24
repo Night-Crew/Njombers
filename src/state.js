@@ -15,6 +15,7 @@ const highScoreState = {
 };
 
 class State extends EventEmitter {
+  #lastResetAt = null;
   #currentNumber = 0;
   #best = 0;
   #highScoreState = highScoreState.NO_HIGHSCORE;
@@ -56,6 +57,7 @@ class State extends EventEmitter {
   }
 
   reset() {
+    this.#lastResetAt = new Date();
     this.#currentNumber = 0;
     this.emitUpdate();
   }

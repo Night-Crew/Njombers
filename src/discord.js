@@ -98,6 +98,25 @@ export async function initClient() {
     streakNumber,
   );
 
+  client.on(Events.MessageUpdate, (_oldMessage, message) => {
+    messagesQueue.push(async () => {
+      // Ignore messages from other channels
+      if (message.channelId !== config.channelId) return;
+
+      let responses = [
+        "Hey, je hebt je bericht aangepast. Dat mag niet!",
+        `Awel, wat zijn we van plan? Bericht aanpassen? Stout.`,
+        `Ge dacht dat ik het niet gezien had he? Hup opnieuw.`,
+      ];
+
+      let response = responses[Math.floor(Math.random() * responses.length)];
+      await message.reply(response);
+      await message.react("❌");
+
+      state.reset();
+    });
+  });
+
   client.on(Events.MessageCreate, (message) => {
     messagesQueue.push(async () => {
       // Ignore messages from other channels
