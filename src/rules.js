@@ -10,21 +10,21 @@ export function findStreak(messages) {
   }
 
   // Most recent message is not valid
-  let match = messages[0].content.match(/^\d+/);
+  const match = messages[0].content.match(/^\d+/);
   if (!match) {
     return { valid: false, reason: "no-number", message: messages[0] };
   }
 
   // Let's verify the most recent messages
-  let potentialStreakNumber = Number(match[0]);
+  const potentialStreakNumber = Number(match[0]);
   for (let [idx, message] of messages.entries()) {
     // Once we see a bot message, then we know that we don't care about the messages before it.
     if (message.author.bot) break;
 
-    let expected = potentialStreakNumber - idx - 1;
+    const expected = potentialStreakNumber - idx - 1;
     if (expected === 0) break; // We started a new chain, we don't care about the messages before it.
 
-    let validationResult = checkValidity(
+    const validationResult = checkValidity(
       message,
       messages.slice(idx),
       expected,

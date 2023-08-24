@@ -79,14 +79,14 @@ export async function initClient() {
       return;
     }
 
-    let validationResult = checkValidity(
+    const validationResult = checkValidity(
       message,
       lastMessages,
       state.currentNumber,
     );
 
     if (validationResult.valid) {
-      let highscore = state.increment();
+      const highscore = state.increment();
       if (highscore) {
         await Promise.allSettled([
           message.react("🎉"),
@@ -95,7 +95,7 @@ export async function initClient() {
         ]);
       }
     } else {
-      let responsesByType = {
+      const responsesByType = {
         "no-number": [
           "Bericht start niet met een getal. Foei!",
           "Ai, de getallekes waren op vanochtend precies.",
@@ -182,7 +182,7 @@ export async function initClient() {
 
   // Only get the last X messages, and stop early instead of going through _all_ messages since the
   // reset.
-  for (let message of messagesSinceReset.values()) {
+  for (const message of messagesSinceReset.values()) {
     lastMessages.push(message);
     if (lastMessages.length === config.uniqueUsers) {
       break;
@@ -190,7 +190,7 @@ export async function initClient() {
   }
 
   // Find current streak
-  let streak = findStreak(Array.from(messagesSinceReset.values()));
+  const streak = findStreak(Array.from(messagesSinceReset.values()));
   if (streak.valid) {
     state.currentNumber = streak.number - 1;
   } else {
@@ -209,19 +209,19 @@ export async function initClient() {
       if (message.channelId !== config.channelId) return;
 
       // Check if the original message was created in a previous chain. If so, ignore it.
-      let createdAt = new Date(message.createdTimestamp);
+      const createdAt = new Date(message.createdTimestamp);
       if (createdAt < state.lastResetAt) {
         return;
       }
 
-      let responses = [
+      const responses = [
         "Hey, je hebt je bericht aangepast. Dat mag niet!",
         `Awel, wat zijn we van plan? Bericht aanpassen? Stout.`,
         `Ge dacht dat ik het niet gezien had he? Hup opnieuw.`,
       ];
 
-      let response = responses[Math.floor(Math.random() * responses.length)];
-      let botMessage = await message.reply(response);
+      const response = responses[Math.floor(Math.random() * responses.length)];
+      const botMessage = await message.reply(response);
       await message.react("❌");
 
       state.reset(botMessage.id);
