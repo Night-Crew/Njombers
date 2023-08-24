@@ -276,6 +276,10 @@ export async function initClient() {
       ],
     },
     {
+      name: "print-state",
+      description: "Print the state of the Njombers bot",
+    },
+    {
       name: "version",
       description: "Get the version of the bot",
     },
@@ -318,8 +322,13 @@ export async function initClient() {
       await interaction.reply(`Last reset message id overridden to \`${id}\``);
     }
 
-    // Version
+    // Print current state
     else if (interaction.commandName === commands[3].name) {
+      await interaction.reply(["```json", state.toJSON(), "```"].join("\n"));
+    }
+
+    // Version
+    else if (interaction.commandName === commands[4].name) {
       await interaction.reply(`Version: ${pkg.version}`);
     }
   });

@@ -78,6 +78,19 @@ class State extends EventEmitter {
     this.emitUpdate();
   }
 
+  toJSON() {
+    return JSON.stringify(
+      {
+        currentNumber: this.#currentNumber,
+        best: this.#best,
+        lastResetAt: this.#lastResetAt,
+        lastResetMessageId: this.#lastResetMessageId,
+      },
+      null,
+      2,
+    );
+  }
+
   async emitUpdate() {
     this.persist();
     this.emit("update", {
