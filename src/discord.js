@@ -168,7 +168,7 @@ export async function initClient() {
           "'T is hier wel warm in de computer, maar toch niet zo warm dat ge zoveel fouten moet maken in één bericht, toch?",
           `Kom eens scheidsrechterke spelen they said, it will be fun they said. En dan komt ge dit tegen.`,
           `Ik heb het al gezegd, ik heb het al gezegd, ik heb het al 1000 keer gezegd. Maar nee, ${message.author} wilt de regeltjes niet lezen. En dan krijgde dit.`,
-          `Ge hebt hier gene PhD voor nodig om te zien dat dit niet klopt. ${message.author} toch!`,
+          `Ge hebt hier gene PhD voor nodig om te zien dat dit niet klopt. ${message.author} toch?`,
           `Hup, weg sfeer. \`${errors.length}\` fouten, ja hallo.`,
           `Dat is hier blijkbaar allemaal normaal. Ik ga naar huis. Tellen jullie maar opnieuw.`,
         ];
