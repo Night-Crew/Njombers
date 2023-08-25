@@ -38,7 +38,7 @@ export const errorMessages = {
     "Nee, nee, nee, een `0` is nie goe!",
     "Een `0`? Vooraan? Ja dat is fout.",
     "Dat is een `0` vooraan. Dat is jammer.",
-    `Ja ge hebt gelijk \`${raw}\` is hetzelfde als \`${number}\` in de wiskune. Maar verwarrend, wat is het volgende? \`${"0".repeat(
+    `Ja ge hebt gelijk \`${raw}\` is hetzelfde als \`${number}\` in de wiskunde. Maar verwarrend, wat is het volgende? \`${"0".repeat(
       30,
     )}${number}\`. Dus nee, geen \`0\` vooraan.`,
   ],
