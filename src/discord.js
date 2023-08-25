@@ -6,6 +6,8 @@ import state from "./state.js";
 import { Queue } from "./queue.js";
 import pkg from "../package.json" assert { type: "json" };
 import { errorMessages, errorNames } from "./error-messages.js";
+import { formatDistance, differenceInMinutes } from "date-fns";
+import nl from "date-fns/locale/nl-BE/index.js";
 
 let client;
 
@@ -168,11 +170,32 @@ export async function initClient() {
           `Ik heb het al gezegd, ik heb het al gezegd, ik heb het al 1000 keer gezegd. Maar nee, ${message.author} moet weer zijn eigen zin doen. En dan krijgde dit.`,
           `Ge hebt hier gene PhD voor nodig om te zien dat dit niet klopt. ${message.author} toch!`,
           `Hup, weg sfeer. \`${errors.length}\` fouten, ja hallo.`,
+          `Dat is hier blijkbaar allemaal normaal. Ik ga naar huis. Tellen jullie maar opnieuw.`,
         ];
 
         response = `${
           responses[Math.floor(Math.random() * responses.length)]
         }\n\n${response}`;
+      }
+
+      let timeDiff =
+        state.lastResetAt &&
+        differenceInMinutes(message.createdTimestamp, state.lastResetAt) >= 0
+          ? formatDistance(message.createdTimestamp, state.lastResetAt, {
+              locale: nl,
+            })
+          : null;
+
+      if (timeDiff) {
+        let responses = [
+          `Het is al ${timeDiff} geleden dat we nog eens opnieuw moesten beginnen.`,
+          `${timeDiff} aan werk voor niets.`,
+          `${timeDiff} aan werk in de vuilbak.`,
+        ];
+
+        response = `${
+          responses[Math.floor(Math.random() * responses.length)]
+        } ${response}`;
       }
 
       if (state.currentNumber === state.best && state.best > 0) {
