@@ -26,7 +26,7 @@ class RecentMessages {
   add(message) {
     this.#messages.unshift(message);
 
-    if (this.#messages.length === this.#uniqueUsers) {
+    if (this.#messages.length >= this.#uniqueUsers) {
       this.#resize();
     }
   }
