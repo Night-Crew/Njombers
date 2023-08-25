@@ -266,6 +266,10 @@ export async function initClient() {
       // Ignore messages from other channels
       if (message.channelId !== config.channelId) return;
 
+      // Sometimes messages are updated (when embeds are loaded or removed), but they don't count as
+      // "edited".
+      if (message.editedTimestamp === null) return;
+
       // Check if the original message was created in a previous chain. If so, ignore it.
       const createdAt = new Date(message.createdTimestamp);
       if (createdAt < state.lastResetAt) {
