@@ -39,18 +39,31 @@ describe("invalid", () => {
   test("a non-number message is invalid", () => {
     expect(checkValidity({ content: "something" }, [], 0))
       .toMatchInlineSnapshot(`
-      {
-        "reason": "no-number",
-        "valid": false,
-      }
-    `);
+        {
+          "reasons": [
+            {
+              "reason": "no-number",
+            },
+            {
+              "actual": 0,
+              "expected": 1,
+              "reason": "wrong-number",
+            },
+          ],
+          "valid": false,
+        }
+      `);
   });
 
   test("a number with leading zeroes is invalid", () => {
     expect(checkValidity({ content: "001" }, [], 0)).toMatchInlineSnapshot(
       `
       {
-        "reason": "leading-zero",
+        "reasons": [
+          {
+            "reason": "leading-zero",
+          },
+        ],
         "valid": false,
       }
     `,
@@ -61,7 +74,16 @@ describe("invalid", () => {
     expect(checkValidity({ content: " 1" }, [], 0)).toMatchInlineSnapshot(
       `
       {
-        "reason": "no-number",
+        "reasons": [
+          {
+            "reason": "no-number",
+          },
+          {
+            "actual": 0,
+            "expected": 1,
+            "reason": "wrong-number",
+          },
+        ],
         "valid": false,
       }
     `,
@@ -72,9 +94,18 @@ describe("invalid", () => {
     expect(checkValidity({ content: "1?" }, [], 0)).toMatchInlineSnapshot(
       `
       {
-        "character": "?",
-        "number": "1",
-        "reason": "trailing-character",
+        "reasons": [
+          {
+            "character": "?",
+            "number": "1",
+            "reason": "trailing-character",
+          },
+          {
+            "actual": 0,
+            "expected": 1,
+            "reason": "wrong-number",
+          },
+        ],
         "valid": false,
       }
     `,
@@ -85,9 +116,13 @@ describe("invalid", () => {
     expect(checkValidity({ content: "2" }, [], 0)).toMatchInlineSnapshot(
       `
       {
-        "actual": 2,
-        "expected": 1,
-        "reason": "wrong-number",
+        "reasons": [
+          {
+            "actual": 2,
+            "expected": 1,
+            "reason": "wrong-number",
+          },
+        ],
         "valid": false,
       }
     `,
@@ -98,9 +133,13 @@ describe("invalid", () => {
     expect(checkValidity({ content: "2" }, [], 2)).toMatchInlineSnapshot(
       `
       {
-        "actual": 2,
-        "expected": 3,
-        "reason": "wrong-number",
+        "reasons": [
+          {
+            "actual": 2,
+            "expected": 3,
+            "reason": "wrong-number",
+          },
+        ],
         "valid": false,
       }
     `,
@@ -111,9 +150,13 @@ describe("invalid", () => {
     expect(checkValidity({ content: "1" }, [], 2)).toMatchInlineSnapshot(
       `
       {
-        "actual": 1,
-        "expected": 3,
-        "reason": "wrong-number",
+        "reasons": [
+          {
+            "actual": 1,
+            "expected": 3,
+            "reason": "wrong-number",
+          },
+        ],
         "valid": false,
       }
     `,
@@ -135,9 +178,13 @@ describe("invalid", () => {
       ),
     ).toMatchInlineSnapshot(`
       {
-        "authorsCount": 0,
-        "messagesCount": 0,
-        "reason": "too-few-unique-people",
+        "reasons": [
+          {
+            "authorsCount": 0,
+            "messagesCount": 0,
+            "reason": "too-few-unique-people",
+          },
+        ],
         "valid": false,
       }
     `);
@@ -158,9 +205,13 @@ describe("invalid", () => {
       ),
     ).toMatchInlineSnapshot(`
       {
-        "authorsCount": 1,
-        "messagesCount": 1,
-        "reason": "too-few-unique-people",
+        "reasons": [
+          {
+            "authorsCount": 1,
+            "messagesCount": 1,
+            "reason": "too-few-unique-people",
+          },
+        ],
         "valid": false,
       }
     `);
@@ -181,9 +232,13 @@ describe("invalid", () => {
       ),
     ).toMatchInlineSnapshot(`
       {
-        "authorsCount": 2,
-        "messagesCount": 2,
-        "reason": "too-few-unique-people",
+        "reasons": [
+          {
+            "authorsCount": 2,
+            "messagesCount": 2,
+            "reason": "too-few-unique-people",
+          },
+        ],
         "valid": false,
       }
     `);
@@ -204,9 +259,13 @@ describe("invalid", () => {
       ),
     ).toMatchInlineSnapshot(`
       {
-        "authorsCount": 3,
-        "messagesCount": 3,
-        "reason": "too-few-unique-people",
+        "reasons": [
+          {
+            "authorsCount": 3,
+            "messagesCount": 3,
+            "reason": "too-few-unique-people",
+          },
+        ],
         "valid": false,
       }
     `);
@@ -227,9 +286,13 @@ describe("invalid", () => {
       ),
     ).toMatchInlineSnapshot(`
       {
-        "authorsCount": 4,
-        "messagesCount": 4,
-        "reason": "too-few-unique-people",
+        "reasons": [
+          {
+            "authorsCount": 4,
+            "messagesCount": 4,
+            "reason": "too-few-unique-people",
+          },
+        ],
         "valid": false,
       }
     `);

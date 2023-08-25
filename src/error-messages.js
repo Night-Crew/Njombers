@@ -8,6 +8,15 @@ const and = new Intl.ListFormat("nl", {
   type: "conjunction",
 });
 
+export const errorNames = {
+  "no-number": ["Geen getalleke"],
+  "leading-zero": ["Nulleke vooraan"],
+  "trailing-character": ["Extra karakterke"],
+  "wrong-number": ["Fout getalleke"],
+  "too-few-unique-people": ["Te weinig unieke mensen", "Te weinig volk"],
+  "message-edited": ["Bewerkerke"],
+};
+
 export const errorMessages = {
   "no-number": ({ message }) => [
     `Bij mijn weten starten getallen met een ${or.format(

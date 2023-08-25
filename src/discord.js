@@ -5,7 +5,7 @@ import { checkValidity, findStreak } from "./rules.js";
 import state from "./state.js";
 import { Queue } from "./queue.js";
 import pkg from "../package.json" assert { type: "json" };
-import { errorMessages } from "./error-messages.js";
+import { errorMessages, errorNames } from "./error-messages.js";
 
 let client;
 
@@ -131,12 +131,48 @@ export async function initClient() {
         ]);
       }
     } else {
-      let responses = errorMessages[validationResult.reason];
-      if (typeof responses === "function") {
-        responses = responses({ ...validationResult, message });
-      }
+      let errors = validationResult.reasons.map((reason) => {
+        let responses = errorMessages[reason.reason];
+        if (typeof responses === "function") {
+          responses = responses({ ...reason, message });
+        }
 
-      let response = responses[Math.floor(Math.random() * responses.length)];
+        return {
+          reason: reason.reason,
+          response: responses[Math.floor(Math.random() * responses.length)],
+        };
+      });
+
+      let response =
+        errors.length === 1
+          ? errors[0].response
+          : errors
+              .map(
+                (e) =>
+                  `- _${
+                    errorNames[e.reason][
+                      Math.floor(Math.random() * errorNames[e.reason].length)
+                    ]
+                  }_ — ${e.response}`,
+              )
+              .join("\n");
+
+      if (errors.length > 1) {
+        let responses = [
+          `Kijk, een foutje maken dat is menselijk. Maar dit? \`${errors.length}\` fouten in één bericht? ${message.author} toch! 😱`,
+          `Ik weet niet wat ik hierop moet zeggen. Ik ben sprakeloos. ${message.author} heeft \`${errors.length}\` fouten gemaakt in één bericht. 😶`,
+          `Ik probeer hier alles mooi te tellen en te controleren en dan krijg ik dit. \`${errors.length}\` fouten in één bericht. ${message.author} toch! 😭`,
+          "Ik word hier niet genoeg voor betaald, hoe kunt ge ook zoveel fouten maken in één bericht?",
+          "'T is hier wel warm in de computer, maar toch niet zo warm dat ge zoveel fouten moet maken in één bericht, toch?",
+          `Kom eens scheidsrechterke spelen they said, it will be fun they said. En dan komt ge dit tegen.`,
+          `Ik heb het al gezegd, ik heb het al gezegd, ik heb het al 1000 keer gezegd. Maar nee, ${message.author} moet weer zijn eigen zin doen. En dan krijgde dit.`,
+          `Ge hebt hier gene PhD voor nodig om te zien dat dit niet klopt. ${message.author} toch!`,
+        ];
+
+        response = `${
+          responses[Math.floor(Math.random() * responses.length)]
+        }\n\n${response}`;
+      }
 
       if (state.currentNumber === state.best && state.best > 0) {
         response += `\n\nWel een nieuw record 🥳! We zijn tot \`${state.currentNumber}\` geraakt. Applausje voor iedereen! 🎉 (Behalve voor ${message.author})`;
