@@ -25,9 +25,8 @@ describe("valid", () => {
   });
 
   test("a number with a space and a message after it is valid", () => {
-    expect(
-      checkValidity({ content: "1 a message can go here" }, [], 0),
-    ).toMatchInlineSnapshot(`
+    expect(checkValidity({ content: "1 a message can go here" }, [], 0))
+      .toMatchInlineSnapshot(`
       {
         "number": 1,
         "valid": true,
@@ -38,9 +37,8 @@ describe("valid", () => {
 
 describe("invalid", () => {
   test("a non-number message is invalid", () => {
-    expect(
-      checkValidity({ content: "something" }, [], 0),
-    ).toMatchInlineSnapshot(`
+    expect(checkValidity({ content: "something" }, [], 0))
+      .toMatchInlineSnapshot(`
       {
         "reason": "no-number",
         "valid": false,
@@ -137,8 +135,8 @@ describe("invalid", () => {
       ),
     ).toMatchInlineSnapshot(`
       {
-        "authorsCount": 4,
-        "messagesCount": 4,
+        "authorsCount": 0,
+        "messagesCount": 0,
         "reason": "too-few-unique-people",
         "valid": false,
       }
@@ -160,8 +158,8 @@ describe("invalid", () => {
       ),
     ).toMatchInlineSnapshot(`
       {
-        "authorsCount": 3,
-        "messagesCount": 3,
+        "authorsCount": 1,
+        "messagesCount": 1,
         "reason": "too-few-unique-people",
         "valid": false,
       }
@@ -206,8 +204,8 @@ describe("invalid", () => {
       ),
     ).toMatchInlineSnapshot(`
       {
-        "authorsCount": 1,
-        "messagesCount": 1,
+        "authorsCount": 3,
+        "messagesCount": 3,
         "reason": "too-few-unique-people",
         "valid": false,
       }
@@ -229,8 +227,8 @@ describe("invalid", () => {
       ),
     ).toMatchInlineSnapshot(`
       {
-        "authorsCount": 0,
-        "messagesCount": 0,
+        "authorsCount": 4,
+        "messagesCount": 4,
         "reason": "too-few-unique-people",
         "valid": false,
       }

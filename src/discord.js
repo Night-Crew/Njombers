@@ -5,6 +5,7 @@ import { checkValidity, findStreak } from "./rules.js";
 import state from "./state.js";
 import { Queue } from "./queue.js";
 import pkg from "../package.json" assert { type: "json" };
+import { errorMessages } from "./error-messages.js";
 
 let client;
 
@@ -130,65 +131,9 @@ export async function initClient() {
         ]);
       }
     } else {
-      const responsesByType = {
-        "no-number": [
-          "Bericht start niet met een getal. Foei!",
-          "Ai, de getallekes waren op vanochtend precies.",
-          "Waar is het getal? Ik zie het niet!",
-          "Voor mij 100gram prepare alstublieft. Oh, en een getal in uw bericht.",
-          `Wist je dat \`${
-            message.content.split(" ")[0]
-          }\` geen getal is? Dus ja, dat is dan fout.`,
-        ],
-        "leading-zero": [
-          "Bericht begint met een `0`. Nie goe!",
-          "Nee, nee, nee, een `0` is nie goe!",
-          "Een `0`? Vooraan? Ja dat is fout.",
-          "Dat is een `0` vooraan. Dat is jammer.",
-        ],
-        "trailing-character": ({ character, number }) => [
-          `Extra karakter \`${character}\` gevonden na het getal \`${number}\`.`,
-          `Er staat een \`${character}\` na het getal \`${number}\`. Wat doet dat daar eigenlijk?`,
-          `Waarom staat er een \`${character}\` na het getal \`${number}\`?`,
-          `Maar wat doet die \`${character}\` daar nu na \`${number}\`?`,
-          `Hallo bakker, voor mij \`${number}${character}\` ${
-            number === 1 ? "brood" : "broden"
-          } alstublieft. Dat verstaat die mens toch niet?`,
-        ],
-        "wrong-number": ({ expected, actual }) => [
-          `Fout getal, ik had een \`${expected}\` verwacht, maar zag een \`${actual}\`. Dat is niet zo goed geteld!`,
-          `Oei, ik had een \`${expected}\` verwacht, maar zag een \`${actual}\`.`,
-          `Wist je dat na \`${
-            expected - 1
-          }\` het getalletje \`${expected}\` komt? En dus niet \`${actual}\`.`,
-          `Jammer maar helaas pindakaas, ik had een \`${expected}\` verwacht, maar zag een \`${actual}\`.`,
-          `Seg vriendschap, \`${
-            expected - 1
-          } + 1\` is \`${expected}\` en niet \`${actual}\`.`,
-        ],
-        "too-few-unique-people": ({ count }) => [
-          `Oei, er zaten maar \`${count}\` ${
-            count === 1 ? "bericht" : "berichten"
-          } tussen dit bericht en jouw laatste bericht.`,
-          `Hebde gij leren tellen in de zwemschool? Er ${
-            count === 1 ? "zit" : "zitten"
-          } hier maar \`${count}\` ${
-            count === 1 ? "bericht" : "berichten"
-          } tussen dit en uw laatste bericht.`,
-          `Goed gedaan! Maar wel fout. Helaas. Er ${
-            count === 1 ? "zit" : "zitten"
-          } maar \`${count}\` ${
-            count === 1 ? "bericht" : "berichten"
-          } tussen dit en uw laatste bericht.`,
-          `NOOOOOOOOOOOOOOOOO! Kijk eens wanneer uw laatste bericht was. Yep, dat was maar \`${count}\` ${
-            count === 1 ? "bericht" : "berichten"
-          } geleden.`,
-        ],
-      };
-
-      let responses = responsesByType[validationResult.reason];
+      let responses = errorMessages[validationResult.reason];
       if (typeof responses === "function") {
-        responses = responses(validationResult);
+        responses = responses({ ...validationResult, message });
       }
 
       let response = responses[Math.floor(Math.random() * responses.length)];
@@ -267,12 +212,7 @@ export async function initClient() {
         return;
       }
 
-      const responses = [
-        "Hey, je hebt je bericht aangepast. Dat mag niet!",
-        `Awel, wat zijn we van plan? Bericht aanpassen? Stout.`,
-        `Ge dacht dat ik het niet gezien had he? Hup opnieuw.`,
-      ];
-
+      const responses = errorMessages["message-edited"];
       const response = responses[Math.floor(Math.random() * responses.length)];
       const botMessage = await message.reply(response);
       await message.react("❌");

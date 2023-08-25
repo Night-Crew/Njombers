@@ -1,0 +1,131 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Error messages > should produce error messages for leading-zero 1`] = `
+[
+  "Dag bakker, voor mij nul twaalf broden alstublieft. Ja raar he, stopt er mee.",
+  "Nee, nee, nee, een \`0\` is nie goe!",
+  "Een \`0\`? Vooraan? Ja dat is fout.",
+  "Dat is een \`0\` vooraan. Dat is jammer.",
+  "Ja ge hebt gelijk \`0123\` is hetzelfde als \`123\` in de wiskune. Maar verwarrend, wat is het volgende? \`000000000000000000000000000000123\`. Dus nee, geen \`0\` vooraan.",
+]
+`;
+
+exports[`Error messages > should produce error messages for message-edited 1`] = `
+[
+  "Awel, wat zijn we van plan? Bericht aanpassen? Stout.",
+  "Ge dacht dat ik het niet gezien had he? Hup opnieuw.",
+  "Bon, ik heb het gezien. Ge moet niet proberen 😡.",
+  "Dat is hier geen edit-club he.",
+  "Moest dat nu echt? Nu moet ik weer opnieuw tellen.",
+  "Ik zit vast in een computer en jij gaat berichten aanpassen?",
+  "Ik heb het gezien, maar ik ga het negeren. Ik ben niet boos, ik ben teleurgesteld. Nee zot, begint maar opnieuw!",
+  "Wil je een koekje? Ja? Dan moet je ook niet aan berichten prutsen.",
+]
+`;
+
+exports[`Error messages > should produce error messages for no-number 1`] = `
+[
+  "Bij mijn weten starten getallen met een \`1\`, \`2\`, \`3\`, \`4\`, \`5\`, \`6\`, \`7\`, \`8\` of \`9\`, maar goed bij u niet blijkbaar.",
+  "Dat start hier niet met een getal he vriend?",
+  "Ai, de getallekes waren op vanochtend precies.",
+  "Ah bon, staat er bij u een \`t\` op uw rekenmachine misschien?",
+  "Voor mij 100gram prepare alstublieft. Oh, en een getal in uw bericht.",
+  "Oei, gebruikte gij een rekenmachine van de Action? Want die werkt niet.",
+  "Wist je dat \`this\` geen getal is? Dus ja, dat is dan fout.",
+  "Wiskunde is moeilijk, maar meestal is dat wel met getallekes.",
+  "Oei, hebde gij een woordenboek naast u liggen in plaats van een rekenmachine?",
+]
+`;
+
+exports[`Error messages > should produce error messages for too-few-unique-people 1`] = `
+[
+  "Oei, er zat maar \`1\` bericht tussen dit bericht en jouw laatste bericht.",
+  "Hebde gij leren tellen in de zwemschool? Er zit hier maar \`1\` bericht tussen dit en uw laatste bericht.",
+  "Goed gedaan! Maar wel fout. Helaas. Er zit maar \`1\` bericht tussen dit en uw laatste bericht.",
+  "NOOOOOOOOOOOOOOOOO! Kijk eens wanneer uw laatste bericht was. Yep, dat was maar \`1\` bericht geleden.",
+]
+`;
+
+exports[`Error messages > should produce error messages for too-few-unique-people 2`] = `
+[
+  "Ola, ge dacht hier zijn \`2\` berichten, maar helaas is er maar \`1\` unieke persoon die iets gestuurd heeft...",
+  "\`2\` berichten dat is just. Maar hiervoor konden ze blijkbaar ook niet tellen want er is maar \`1\` unieke persoon die iets gestuurd heeft...",
+]
+`;
+
+exports[`Error messages > should produce error messages for too-few-unique-people 3`] = `
+[
+  "Oei, er zaten maar \`2\` berichten tussen dit bericht en jouw laatste bericht.",
+  "Hebde gij leren tellen in de zwemschool? Er zitten hier maar \`2\` berichten tussen dit en uw laatste bericht.",
+  "Goed gedaan! Maar wel fout. Helaas. Er zitten maar \`2\` berichten tussen dit en uw laatste bericht.",
+  "NOOOOOOOOOOOOOOOOO! Kijk eens wanneer uw laatste bericht was. Yep, dat was maar \`2\` berichten geleden.",
+]
+`;
+
+exports[`Error messages > should produce error messages for too-few-unique-people 4`] = `
+[
+  "Ola, ge dacht hier zijn \`8\` berichten, maar helaas zijn er maar \`4\` unieke personen die iets gestuurd hebben...",
+  "\`8\` berichten dat is just. Maar hiervoor konden ze blijkbaar ook niet tellen want er zijn maar \`4\` unieke personen die iets gestuurd hebben...",
+]
+`;
+
+exports[`Error messages > should produce error messages for trailing-character 1`] = `
+[
+  "En wat doet die \`?\` daar na het getal \`0\`?",
+  "Hallo bakker, voor mij \`0?\` broden alstublieft. Dat verstaat die mens toch niet?",
+]
+`;
+
+exports[`Error messages > should produce error messages for trailing-character 2`] = `
+[
+  "En wat doet die \`?\` daar na het getal \`1\`?",
+  "Hallo bakker, voor mij \`1?\` brood alstublieft. Dat verstaat die mens toch niet?",
+]
+`;
+
+exports[`Error messages > should produce error messages for trailing-character 3`] = `
+[
+  "En wat doet die \`?\` daar na het getal \`2\`?",
+  "Hallo bakker, voor mij \`2?\` broden alstublieft. Dat verstaat die mens toch niet?",
+]
+`;
+
+exports[`Error messages > should produce error messages for trailing-character 4`] = `
+[
+  "En wat doet die \`?\` daar na het getal \`123\`?",
+  "Hallo bakker, voor mij \`123?\` broden alstublieft. Dat verstaat die mens toch niet?",
+]
+`;
+
+exports[`Error messages > should produce error messages for wrong-number 1`] = `
+[
+  "Fout getal, ik had een \`1\` verwacht, maar zag een \`2\`. Dat is niet zo goed geteld!",
+  "Wist je dat na \`0\` het getalletje \`1\` komt? En dus niet \`2\`.",
+  "Jammer maar helaas pindakaas, ik had een \`1\` verwacht, maar zag een \`2\`.",
+  "Seg vriendschap, \`0 + 1\` is \`1\` en niet \`2\`.",
+  "Ah Alice heeft leren tellen op de zwemschool.",
+  "Ja, we mogen naar huis, gedaan met spelen. Doe maar opnieuw...",
+]
+`;
+
+exports[`Error messages > should produce error messages for wrong-number 2`] = `
+[
+  "Fout getal, ik had een \`2\` verwacht, maar zag een \`1\`. Dat is niet zo goed geteld!",
+  "Wist je dat na \`1\` het getalletje \`2\` komt? En dus niet \`1\`.",
+  "Jammer maar helaas pindakaas, ik had een \`2\` verwacht, maar zag een \`1\`.",
+  "Seg vriendschap, \`1 + 1\` is \`2\` en niet \`1\`.",
+  "Ah Alice heeft leren tellen op de zwemschool.",
+  "Ja, we mogen naar huis, gedaan met spelen. Doe maar opnieuw...",
+]
+`;
+
+exports[`Error messages > should produce error messages for wrong-number 3`] = `
+[
+  "Fout getal, ik had een \`123\` verwacht, maar zag een \`321\`. Dat is niet zo goed geteld!",
+  "Wist je dat na \`122\` het getalletje \`123\` komt? En dus niet \`321\`.",
+  "Jammer maar helaas pindakaas, ik had een \`123\` verwacht, maar zag een \`321\`.",
+  "Seg vriendschap, \`122 + 1\` is \`123\` en niet \`321\`.",
+  "Ah Alice heeft leren tellen op de zwemschool.",
+  "Ja, we mogen naar huis, gedaan met spelen. Doe maar opnieuw...",
+]
+`;
