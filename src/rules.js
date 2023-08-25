@@ -93,13 +93,15 @@ export function checkValidity(message, previousMessages, currentNumber) {
   // - The wrong number is posted.
   {
     const match = message.content.match(/^(\d+\s)|(^\d+)$/);
-    const number = !match ? 0 : Number(match[0]);
-    if (currentNumber + 1 !== number) {
-      reasons.push({
-        reason: "wrong-number",
-        expected: currentNumber + 1,
-        actual: number,
-      });
+    if (match) {
+      const number = Number(match[0]);
+      if (currentNumber + 1 !== number) {
+        reasons.push({
+          reason: "wrong-number",
+          expected: currentNumber + 1,
+          actual: number,
+        });
+      }
     }
   }
 

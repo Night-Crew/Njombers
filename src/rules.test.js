@@ -44,11 +44,6 @@ describe("invalid", () => {
             {
               "reason": "no-number",
             },
-            {
-              "actual": 0,
-              "expected": 1,
-              "reason": "wrong-number",
-            },
           ],
           "valid": false,
         }
@@ -78,11 +73,6 @@ describe("invalid", () => {
           {
             "reason": "no-number",
           },
-          {
-            "actual": 0,
-            "expected": 1,
-            "reason": "wrong-number",
-          },
         ],
         "valid": false,
       }
@@ -99,11 +89,6 @@ describe("invalid", () => {
             "character": "?",
             "number": "1",
             "reason": "trailing-character",
-          },
-          {
-            "actual": 0,
-            "expected": 1,
-            "reason": "wrong-number",
           },
         ],
         "valid": false,
