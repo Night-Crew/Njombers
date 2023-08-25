@@ -22,7 +22,9 @@ export const config = {
   // @ts-ignore
   token: process.env.TOKEN,
   // @ts-ignore
-  uniqueUsers: Number(process.env.UNIQUE_USERS),
+  uniqueUsers: process.env.UNIQUE_USERS
+    ? Number(process.env.UNIQUE_USERS)
+    : null,
   // @ts-ignore
   debugChannelId: process.env.DEBUG_CHANNEL_ID,
   // @ts-ignore
@@ -35,7 +37,7 @@ if (
   !config.clientSecret ||
   !config.channelId ||
   !config.token ||
-  !config.uniqueUsers ||
+  config.uniqueUsers === null ||
   !config.debugChannelId ||
   !config.adminIds
 ) {

@@ -5,11 +5,51 @@ import { checkValidity, findStreak } from "./rules.js";
 import state from "./state.js";
 import { Queue } from "./queue.js";
 import pkg from "../package.json" assert { type: "json" };
+import { errorMessages, errorNames } from "./error-messages.js";
+import { formatDistance, differenceInMinutes } from "date-fns";
+import nl from "date-fns/locale/nl-BE/index.js";
 
 let client;
 
 const lengthOfMessageCache = config.uniqueUsers * 2 + 5;
 const discordRestVersion = "10";
+
+class RecentMessages {
+  #uniqueUsers = 0;
+  #messages = [];
+
+  constructor(uniqueUsers) {
+    this.#uniqueUsers = uniqueUsers;
+    this.#messages = [];
+  }
+
+  add(message) {
+    this.#messages.unshift(message);
+
+    if (this.#messages.length === this.#uniqueUsers) {
+      this.#resize();
+    }
+  }
+
+  messages() {
+    return this.#messages.slice().reverse();
+  }
+
+  #resize() {
+    // We want `config.uniqueUsers` amount of messages, but if somebody adds multiple posts, then we
+    // want to ensure that we have at least `config.uniqueUsers` unique users.
+    let authors = new Set();
+
+    for (let [idx, message] of this.#messages.entries()) {
+      authors.add(message.author.id);
+
+      if (authors.size > this.#uniqueUsers) {
+        this.#messages.splice(idx + 1);
+        break;
+      }
+    }
+  }
+}
 
 const messagesQueue = new Queue();
 
@@ -73,15 +113,13 @@ export async function initClient() {
       // 5. Eve posts     6 (wrong)
       // 6. Bot posts something about Eve being wrong
       // 7. Alice posts   1 (including the bot, there are 5 messages in between; excluding the bot there are 4)
-      lastMessages.pop();
-      lastMessages.unshift(message);
-
+      mostRecentMessages.add(message);
       return;
     }
 
     const validationResult = checkValidity(
       message,
-      lastMessages,
+      mostRecentMessages.messages(),
       state.currentNumber,
     );
 
@@ -95,68 +133,70 @@ export async function initClient() {
         ]);
       }
     } else {
-      const responsesByType = {
-        "no-number": [
-          "Bericht start niet met een getal. Foei!",
-          "Ai, de getallekes waren op vanochtend precies.",
-          "Waar is het getal? Ik zie het niet!",
-          "Voor mij 100gram prepare alstublieft. Oh, en een getal in uw bericht.",
-          `Wist je dat \`${
-            message.content.split(" ")[0]
-          }\` geen getal is? Dus ja, dat is dan fout.`,
-        ],
-        "leading-zero": [
-          "Bericht begint met een `0`. Nie goe!",
-          "Nee, nee, nee, een `0` is nie goe!",
-          "Een `0`? Vooraan? Ja dat is fout.",
-          "Dat is een `0` vooraan. Dat is jammer.",
-        ],
-        "trailing-character": ({ character, number }) => [
-          `Extra karakter \`${character}\` gevonden na het getal \`${number}\`.`,
-          `Er staat een \`${character}\` na het getal \`${number}\`. Wat doet dat daar eigenlijk?`,
-          `Waarom staat er een \`${character}\` na het getal \`${number}\`?`,
-          `Maar wat doet die \`${character}\` daar nu na \`${number}\`?`,
-          `Hallo bakker, voor mij \`${number}${character}\` ${
-            number === 1 ? "brood" : "broden"
-          } alstublieft. Dat verstaat die mens toch niet?`,
-        ],
-        "wrong-number": ({ expected, actual }) => [
-          `Fout getal, ik had een \`${expected}\` verwacht, maar zag een \`${actual}\`. Dat is niet zo goed geteld!`,
-          `Oei, ik had een \`${expected}\` verwacht, maar zag een \`${actual}\`.`,
-          `Wist je dat na \`${
-            expected - 1
-          }\` het getalletje \`${expected}\` komt? En dus niet \`${actual}\`.`,
-          `Jammer maar helaas pindakaas, ik had een \`${expected}\` verwacht, maar zag een \`${actual}\`.`,
-          `Seg vriendschap, \`${
-            expected - 1
-          } + 1\` is \`${expected}\` en niet \`${actual}\`.`,
-        ],
-        "too-few-unique-people": ({ count }) => [
-          `Oei, er zaten maar \`${count}\` ${
-            count === 1 ? "bericht" : "berichten"
-          } tussen dit bericht en jouw laatste bericht.`,
-          `Hebde gij leren tellen in de zwemschool? Er ${
-            count === 1 ? "zit" : "zitten"
-          } hier maar \`${count}\` ${
-            count === 1 ? "bericht" : "berichten"
-          } tussen dit en uw laatste bericht.`,
-          `Goed gedaan! Maar wel fout. Helaas. Er ${
-            count === 1 ? "zit" : "zitten"
-          } maar \`${count}\` ${
-            count === 1 ? "bericht" : "berichten"
-          } tussen dit en uw laatste bericht.`,
-          `NOOOOOOOOOOOOOOOOO! Kijk eens wanneer uw laatste bericht was. Yep, dat was maar \`${count}\` ${
-            count === 1 ? "bericht" : "berichten"
-          } geleden.`,
-        ],
-      };
+      let errors = validationResult.reasons.map((reason) => {
+        let responses = errorMessages[reason.reason];
+        if (typeof responses === "function") {
+          responses = responses({ ...reason, message });
+        }
 
-      let responses = responsesByType[validationResult.reason];
-      if (typeof responses === "function") {
-        responses = responses(validationResult);
+        return {
+          reason: reason.reason,
+          response: responses[Math.floor(Math.random() * responses.length)],
+        };
+      });
+
+      let response =
+        errors.length === 1
+          ? errors[0].response
+          : errors
+              .map(
+                (e) =>
+                  `- _${
+                    errorNames[e.reason][
+                      Math.floor(Math.random() * errorNames[e.reason].length)
+                    ]
+                  }_ — ${e.response}`,
+              )
+              .join("\n");
+
+      if (errors.length > 1) {
+        let responses = [
+          `Kijk, een foutje maken dat is menselijk. Maar dit? \`${errors.length}\` fouten in één bericht? ${message.author} toch! 😱`,
+          `Ik weet niet wat ik hierop moet zeggen. Ik ben sprakeloos. ${message.author} heeft \`${errors.length}\` fouten gemaakt in één bericht. 😶`,
+          `Ik probeer hier alles mooi te tellen en te controleren en dan krijg ik dit. \`${errors.length}\` fouten in één bericht. ${message.author} toch! 😭`,
+          "Ik word hier niet genoeg voor betaald, hoe kunt ge ook zoveel fouten maken in één bericht?",
+          "'T is hier wel warm in de computer, maar toch niet zo warm dat ge zoveel fouten moet maken in één bericht, toch?",
+          `Kom eens scheidsrechterke spelen they said, it will be fun they said. En dan komt ge dit tegen.`,
+          `Ik heb het al gezegd, ik heb het al gezegd, ik heb het al 1000 keer gezegd. Maar nee, ${message.author} wilt de regeltjes niet lezen. En dan krijgde dit.`,
+          `Ge hebt hier gene PhD voor nodig om te zien dat dit niet klopt. ${message.author} toch?`,
+          `Hup, weg sfeer. \`${errors.length}\` fouten, ja hallo.`,
+          `Dat is hier blijkbaar allemaal normaal. Ik ga naar huis. Tellen jullie maar opnieuw.`,
+        ];
+
+        response = `${
+          responses[Math.floor(Math.random() * responses.length)]
+        }\n\n${response}`;
       }
 
-      let response = responses[Math.floor(Math.random() * responses.length)];
+      let timeDiff =
+        state.lastResetAt &&
+        differenceInMinutes(message.createdTimestamp, state.lastResetAt) >= 15
+          ? formatDistance(message.createdTimestamp, state.lastResetAt, {
+              locale: nl,
+            })
+          : null;
+
+      if (timeDiff) {
+        let responses = [
+          `Het is al ${timeDiff} geleden dat we nog eens opnieuw moesten beginnen.`,
+          `${timeDiff} aan werk voor niets.`,
+          `${timeDiff} aan werk in de vuilbak.`,
+        ];
+
+        response = `${
+          responses[Math.floor(Math.random() * responses.length)]
+        } ${response}`;
+      }
 
       if (state.currentNumber === state.best && state.best > 0) {
         response += `\n\nWel een nieuw record 🥳! We zijn tot \`${state.currentNumber}\` geraakt. Applausje voor iedereen! 🎉 (Behalve voor ${message.author})`;
@@ -170,8 +210,7 @@ export async function initClient() {
       await message.reply(response);
     }
 
-    lastMessages.pop();
-    lastMessages.unshift(message);
+    mostRecentMessages.add(message);
   }
 
   // Get all messages since the last reset
@@ -196,7 +235,7 @@ export async function initClient() {
     }
   }
 
-  const lastMessages = [];
+  const mostRecentMessages = new RecentMessages(config.uniqueUsers);
 
   // Only get the last X messages, and stop early instead of going through _all_ messages since the
   // reset.
@@ -204,11 +243,8 @@ export async function initClient() {
     (a, z) => z.position - a.position,
   );
 
-  for (const message of combinedMessages.values()) {
-    lastMessages.push(message);
-    if (lastMessages.length === config.uniqueUsers) {
-      break;
-    }
+  for (const message of Array.from(combinedMessages.values()).reverse()) {
+    mostRecentMessages.add(message);
   }
 
   // Find current streak
@@ -236,12 +272,7 @@ export async function initClient() {
         return;
       }
 
-      const responses = [
-        "Hey, je hebt je bericht aangepast. Dat mag niet!",
-        `Awel, wat zijn we van plan? Bericht aanpassen? Stout.`,
-        `Ge dacht dat ik het niet gezien had he? Hup opnieuw.`,
-      ];
-
+      const responses = errorMessages["message-edited"];
       const response = responses[Math.floor(Math.random() * responses.length)];
       const botMessage = await message.reply(response);
       await message.react("❌");

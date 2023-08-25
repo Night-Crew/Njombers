@@ -40,22 +40,30 @@ export function findStreak(messages) {
 }
 
 export function checkValidity(message, previousMessages, currentNumber) {
+  let reasons = [];
+
   // - Any person posts with fewer than 5 unique people posting before them. This carries over restarts.
-  for (const [idx, previousMessage] of previousMessages.entries()) {
-    if (previousMessage.author.id === message.author.id) {
-      const messagesInBetween = previousMessages.slice(0, idx).length;
-      return {
-        valid: false,
-        reason: "too-few-unique-people",
-        count: messagesInBetween,
-      };
+  {
+    let reversedMessages = previousMessages.slice().reverse();
+    for (const [idx, previousMessage] of reversedMessages.entries()) {
+      if (previousMessage.author.id === message.author.id) {
+        const messagesInBetween = reversedMessages.slice(0, idx).length;
+        reasons.push({
+          reason: "too-few-unique-people",
+          messagesCount: messagesInBetween,
+          authorsCount: new Set(
+            reversedMessages.slice(0, idx).map((m) => m.author.id),
+          ).size,
+        });
+        break;
+      }
     }
   }
 
   // - The post must start with the number. Main number cannot be spelt out.
   {
     if (!/^\d/g.test(message.content)) {
-      return { valid: false, reason: "no-number" };
+      reasons.push({ reason: "no-number" });
     }
   }
 
@@ -63,7 +71,7 @@ export function checkValidity(message, previousMessages, currentNumber) {
   {
     const match = message.content.match(/^0/);
     if (match) {
-      return { valid: false, reason: "leading-zero" };
+      reasons.push({ reason: "leading-zero" });
     }
   }
 
@@ -73,12 +81,11 @@ export function checkValidity(message, previousMessages, currentNumber) {
     if (match) {
       const [, number, extra] = match;
       if (extra) {
-        return {
-          valid: false,
+        reasons.push({
           reason: "trailing-character",
           character: extra,
           number,
-        };
+        });
       }
     }
   }
@@ -86,14 +93,15 @@ export function checkValidity(message, previousMessages, currentNumber) {
   // - The wrong number is posted.
   {
     const match = message.content.match(/^(\d+\s)|(^\d+)$/);
-    const number = !match ? 0 : Number(match[0]);
-    if (currentNumber + 1 !== number) {
-      return {
-        valid: false,
-        reason: "wrong-number",
-        expected: currentNumber + 1,
-        actual: number,
-      };
+    if (match) {
+      const number = Number(match[0]);
+      if (currentNumber + 1 !== number) {
+        reasons.push({
+          reason: "wrong-number",
+          expected: currentNumber + 1,
+          actual: number,
+        });
+      }
     }
   }
 
@@ -103,5 +111,10 @@ export function checkValidity(message, previousMessages, currentNumber) {
   // - A message is edited/deleted since that chain started.
   // TODO: Implement this
 
-  return { valid: true, number: Number(message.content.match(/^\d+/)[0]) };
+  return Object.assign(
+    { valid: reasons.length === 0 },
+    reasons.length > 0
+      ? { reasons }
+      : { number: Number(message.content.match(/^\d+/)[0]) },
+  );
 }
