@@ -41,14 +41,20 @@ export function findStreak(messages) {
 
 export function checkValidity(message, previousMessages, currentNumber) {
   // - Any person posts with fewer than 5 unique people posting before them. This carries over restarts.
-  for (const [idx, previousMessage] of previousMessages.entries()) {
-    if (previousMessage.author.id === message.author.id) {
-      const messagesInBetween = previousMessages.slice(0, idx).length;
-      return {
-        valid: false,
-        reason: "too-few-unique-people",
-        count: messagesInBetween,
-      };
+  {
+    let reversedMessages = previousMessages.slice().reverse();
+    for (const [idx, previousMessage] of reversedMessages.entries()) {
+      if (previousMessage.author.id === message.author.id) {
+        const messagesInBetween = reversedMessages.slice(0, idx).length;
+        return {
+          valid: false,
+          reason: "too-few-unique-people",
+          messagesCount: messagesInBetween,
+          authorsCount: new Set(
+            reversedMessages.slice(0, idx).map((m) => m.author.id),
+          ).size,
+        };
+      }
     }
   }
 

@@ -11,6 +11,43 @@ let client;
 const lengthOfMessageCache = config.uniqueUsers * 2 + 5;
 const discordRestVersion = "10";
 
+class RecentMessages {
+  #uniqueUsers = 0;
+  #messages = [];
+
+  constructor(uniqueUsers) {
+    this.#uniqueUsers = uniqueUsers;
+    this.#messages = [];
+  }
+
+  add(message) {
+    this.#messages.unshift(message);
+
+    if (this.#messages.length === this.#uniqueUsers) {
+      this.#resize();
+    }
+  }
+
+  messages() {
+    return this.#messages.slice().reverse();
+  }
+
+  #resize() {
+    // We want `config.uniqueUsers` amount of messages, but if somebody adds multiple posts, then we
+    // want to ensure that we have at least `config.uniqueUsers` unique users.
+    let authors = new Set();
+
+    for (let [idx, message] of this.#messages.entries()) {
+      authors.add(message.author.id);
+
+      if (authors.size > this.#uniqueUsers) {
+        this.#messages.splice(idx + 1);
+        break;
+      }
+    }
+  }
+}
+
 const messagesQueue = new Queue();
 
 // Create a new client instance
@@ -73,15 +110,13 @@ export async function initClient() {
       // 5. Eve posts     6 (wrong)
       // 6. Bot posts something about Eve being wrong
       // 7. Alice posts   1 (including the bot, there are 5 messages in between; excluding the bot there are 4)
-      lastMessages.pop();
-      lastMessages.unshift(message);
-
+      mostRecentMessages.add(message);
       return;
     }
 
     const validationResult = checkValidity(
       message,
-      lastMessages,
+      mostRecentMessages.messages(),
       state.currentNumber,
     );
 
@@ -170,8 +205,7 @@ export async function initClient() {
       await message.reply(response);
     }
 
-    lastMessages.pop();
-    lastMessages.unshift(message);
+    mostRecentMessages.add(message);
   }
 
   // Get all messages since the last reset
@@ -196,7 +230,7 @@ export async function initClient() {
     }
   }
 
-  const lastMessages = [];
+  const mostRecentMessages = new RecentMessages(config.uniqueUsers);
 
   // Only get the last X messages, and stop early instead of going through _all_ messages since the
   // reset.
@@ -204,11 +238,8 @@ export async function initClient() {
     (a, z) => z.position - a.position,
   );
 
-  for (const message of combinedMessages.values()) {
-    lastMessages.push(message);
-    if (lastMessages.length === config.uniqueUsers) {
-      break;
-    }
+  for (const message of Array.from(combinedMessages.values()).reverse()) {
+    mostRecentMessages.add(message);
   }
 
   // Find current streak

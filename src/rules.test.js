@@ -137,7 +137,8 @@ describe("invalid", () => {
       ),
     ).toMatchInlineSnapshot(`
       {
-        "count": 4,
+        "authorsCount": 4,
+        "messagesCount": 4,
         "reason": "too-few-unique-people",
         "valid": false,
       }
@@ -159,7 +160,8 @@ describe("invalid", () => {
       ),
     ).toMatchInlineSnapshot(`
       {
-        "count": 3,
+        "authorsCount": 3,
+        "messagesCount": 3,
         "reason": "too-few-unique-people",
         "valid": false,
       }
@@ -181,7 +183,8 @@ describe("invalid", () => {
       ),
     ).toMatchInlineSnapshot(`
       {
-        "count": 2,
+        "authorsCount": 2,
+        "messagesCount": 2,
         "reason": "too-few-unique-people",
         "valid": false,
       }
@@ -203,7 +206,8 @@ describe("invalid", () => {
       ),
     ).toMatchInlineSnapshot(`
       {
-        "count": 1,
+        "authorsCount": 1,
+        "messagesCount": 1,
         "reason": "too-few-unique-people",
         "valid": false,
       }
@@ -225,7 +229,8 @@ describe("invalid", () => {
       ),
     ).toMatchInlineSnapshot(`
       {
-        "count": 0,
+        "authorsCount": 0,
+        "messagesCount": 0,
         "reason": "too-few-unique-people",
         "valid": false,
       }
