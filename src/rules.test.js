@@ -1,9 +1,15 @@
 import { describe, test, expect } from "vitest";
 import { checkValidity } from "./rules";
 
+let config = {
+  uniqueUsers: 5,
+};
+
 describe("valid", () => {
   test("a correct number is valid", () => {
-    expect(checkValidity({ content: "1" }, [], 0)).toMatchInlineSnapshot(
+    expect(
+      checkValidity({ content: "1" }, [], 0, config),
+    ).toMatchInlineSnapshot(
       `
       {
         "number": 1,
@@ -14,7 +20,9 @@ describe("valid", () => {
   });
 
   test("a number with a space after it is valid", () => {
-    expect(checkValidity({ content: "1 " }, [], 0)).toMatchInlineSnapshot(
+    expect(
+      checkValidity({ content: "1 " }, [], 0, config),
+    ).toMatchInlineSnapshot(
       `
       {
         "number": 1,
@@ -25,7 +33,7 @@ describe("valid", () => {
   });
 
   test("a number with a space and a message after it is valid", () => {
-    expect(checkValidity({ content: "1 a message can go here" }, [], 0))
+    expect(checkValidity({ content: "1 a message can go here" }, [], 0, config))
       .toMatchInlineSnapshot(`
       {
         "number": 1,
@@ -37,7 +45,7 @@ describe("valid", () => {
 
 describe("invalid", () => {
   test("a non-number message is invalid", () => {
-    expect(checkValidity({ content: "something" }, [], 0))
+    expect(checkValidity({ content: "something" }, [], 0, config))
       .toMatchInlineSnapshot(`
         {
           "reasons": [
@@ -51,7 +59,9 @@ describe("invalid", () => {
   });
 
   test("a number with leading zeroes is invalid", () => {
-    expect(checkValidity({ content: "001" }, [], 0)).toMatchInlineSnapshot(
+    expect(
+      checkValidity({ content: "001" }, [], 0, config),
+    ).toMatchInlineSnapshot(
       `
       {
         "reasons": [
@@ -66,7 +76,9 @@ describe("invalid", () => {
   });
 
   test("a character before a number is invalid", () => {
-    expect(checkValidity({ content: " 1" }, [], 0)).toMatchInlineSnapshot(
+    expect(
+      checkValidity({ content: " 1" }, [], 0, config),
+    ).toMatchInlineSnapshot(
       `
       {
         "reasons": [
@@ -81,7 +93,9 @@ describe("invalid", () => {
   });
 
   test("a non-space character after a number is invalid", () => {
-    expect(checkValidity({ content: "1?" }, [], 0)).toMatchInlineSnapshot(
+    expect(
+      checkValidity({ content: "1?" }, [], 0, config),
+    ).toMatchInlineSnapshot(
       `
       {
         "reasons": [
@@ -98,7 +112,9 @@ describe("invalid", () => {
   });
 
   test("posting the wrong number is invalid", () => {
-    expect(checkValidity({ content: "2" }, [], 0)).toMatchInlineSnapshot(
+    expect(
+      checkValidity({ content: "2" }, [], 0, config),
+    ).toMatchInlineSnapshot(
       `
       {
         "reasons": [
@@ -115,7 +131,9 @@ describe("invalid", () => {
   });
 
   test("posting the same number as the previous number is invalid (double post)", () => {
-    expect(checkValidity({ content: "2" }, [], 2)).toMatchInlineSnapshot(
+    expect(
+      checkValidity({ content: "2" }, [], 2, config),
+    ).toMatchInlineSnapshot(
       `
       {
         "reasons": [
@@ -132,7 +150,9 @@ describe("invalid", () => {
   });
 
   test("posting a number below the current number is invalid", () => {
-    expect(checkValidity({ content: "1" }, [], 2)).toMatchInlineSnapshot(
+    expect(
+      checkValidity({ content: "1" }, [], 2, config),
+    ).toMatchInlineSnapshot(
       `
       {
         "reasons": [
@@ -160,6 +180,7 @@ describe("invalid", () => {
           { content: "1", author: { id: "alice", displayName: "Alice" } },
         ],
         5,
+        config,
       ),
     ).toMatchInlineSnapshot(`
       {
@@ -187,6 +208,7 @@ describe("invalid", () => {
           { content: "1", author: { id: "alice", displayName: "Alice" } },
         ],
         5,
+        config,
       ),
     ).toMatchInlineSnapshot(`
       {
@@ -214,6 +236,7 @@ describe("invalid", () => {
           { content: "1", author: { id: "alice", displayName: "Alice" } },
         ],
         5,
+        config,
       ),
     ).toMatchInlineSnapshot(`
       {
@@ -241,6 +264,7 @@ describe("invalid", () => {
           { content: "1", author: { id: "alice", displayName: "Alice" } },
         ],
         5,
+        config,
       ),
     ).toMatchInlineSnapshot(`
       {
@@ -268,6 +292,7 @@ describe("invalid", () => {
           { content: "1", author: { id: "alice", displayName: "Alice" } },
         ],
         5,
+        config,
       ),
     ).toMatchInlineSnapshot(`
       {

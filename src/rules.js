@@ -1,4 +1,4 @@
-export function findStreak(messages) {
+export function findStreak(messages, config) {
   // No messages yet
   if (messages.length === 0) {
     return { valid: true, number: 0, message: null };
@@ -28,6 +28,7 @@ export function findStreak(messages) {
       message,
       messages.slice(idx),
       expected,
+      config,
     );
 
     if (!validationResult.valid) {
@@ -39,7 +40,12 @@ export function findStreak(messages) {
   return { valid: true, number: potentialStreakNumber, message: messages[0] };
 }
 
-export function checkValidity(message, previousMessages, currentNumber) {
+export function checkValidity(
+  message,
+  previousMessages,
+  currentNumber,
+  config,
+) {
   let reasons = [];
 
   // - Any person posts with fewer than 5 unique people posting before them. This carries over restarts.
@@ -47,13 +53,18 @@ export function checkValidity(message, previousMessages, currentNumber) {
     let reversedMessages = previousMessages.slice().reverse();
     for (const [idx, previousMessage] of reversedMessages.entries()) {
       if (previousMessage.author.id === message.author.id) {
-        const messagesInBetween = reversedMessages.slice(0, idx).length;
+        const messagesCount = reversedMessages.slice(0, idx).length;
+        const authorsCount = new Set(
+          reversedMessages.slice(0, idx).map((m) => m.author.id),
+        ).size;
+
+        // There enough unique authors in between
+        if (authorsCount >= config.uniqueUsers) break;
+
         reasons.push({
           reason: "too-few-unique-people",
-          messagesCount: messagesInBetween,
-          authorsCount: new Set(
-            reversedMessages.slice(0, idx).map((m) => m.author.id),
-          ).size,
+          messagesCount: messagesCount,
+          authorsCount: authorsCount,
         });
         break;
       }

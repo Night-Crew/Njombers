@@ -121,6 +121,7 @@ export async function initClient() {
       message,
       mostRecentMessages.messages(),
       state.currentNumber,
+      config,
     );
 
     if (validationResult.valid) {
@@ -248,7 +249,7 @@ export async function initClient() {
   }
 
   // Find current streak
-  const streak = findStreak(Array.from(messagesCache.values()));
+  const streak = findStreak(Array.from(messagesCache.values()), config);
   if (streak.valid) {
     state.currentNumber = streak.number - 1;
   } else {
