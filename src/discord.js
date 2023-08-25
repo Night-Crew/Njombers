@@ -180,7 +180,7 @@ export async function initClient() {
 
       let timeDiff =
         state.lastResetAt &&
-        differenceInMinutes(message.createdTimestamp, state.lastResetAt) >= 0
+        differenceInMinutes(message.createdTimestamp, state.lastResetAt) >= 15
           ? formatDistance(message.createdTimestamp, state.lastResetAt, {
               locale: nl,
             })
