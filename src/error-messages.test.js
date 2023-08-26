@@ -39,6 +39,10 @@ describe("Error messages", () => {
           ];
         }
 
+        if (key === "message-deleted") {
+          return [{ message: { author: "Alice" } }];
+        }
+
         return [{}];
       })();
 

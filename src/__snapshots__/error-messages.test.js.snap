@@ -10,6 +10,14 @@ exports[`Error messages > should produce error messages for leading-zero 1`] = `
 ]
 `;
 
+exports[`Error messages > should produce error messages for message-deleted 1`] = `
+[
+  "Ja lap, Alice dacht hier even een bericht te verwijderen. Maar ik heb het gezien. Dus opnieuw.",
+  "Ik ben wel teleurgesteld in u Alice. Ik had u hoger ingeschat. Berichten verwijderen mag niet he.",
+  "Kom dat zien, kom dat zien. Alice heeft een bericht verwijderd. Maar ik heb het gezien. Dus opnieuw.",
+]
+`;
+
 exports[`Error messages > should produce error messages for message-edited 1`] = `
 [
   "Awel, wat zijn we van plan? Bericht aanpassen? Stout.",

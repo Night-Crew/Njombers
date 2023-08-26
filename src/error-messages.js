@@ -109,4 +109,9 @@ export const errorMessages = {
     `Ik heb het gezien, maar ik ga het negeren. Ik ben niet boos, ik ben teleurgesteld. Nee zot, begint maar opnieuw!`,
     `Wil je een koekje? Ja? Dan moet je ook niet aan berichten prutsen.`,
   ],
+  "message-deleted": ({ message }) => [
+    `❌ — Ja lap, ${message.author} dacht hier even een bericht te verwijderen. Maar ik heb het gezien. Dus opnieuw.`,
+    `❌ — Ik ben wel teleurgesteld in u ${message.author}. Ik had u hoger ingeschat. Berichten verwijderen mag niet he.`,
+    `❌ — Kom dat zien, kom dat zien. ${message.author} heeft een bericht verwijderd. Maar ik heb het gezien. Dus opnieuw.`,
+  ],
 };

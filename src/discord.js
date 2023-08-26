@@ -262,6 +262,23 @@ export async function initClient() {
 
   console.log("Continuing from streak:", state.currentNumber);
 
+  client.on(Events.MessageDelete, async (message) => {
+    // Ignore messages from other channels
+    if (message.channelId !== config.channelId) return;
+
+    // Check if the original message was created in a previous chain. If so, ignore it.
+    const createdAt = new Date(message.createdTimestamp);
+    if (createdAt < state.lastResetAt) {
+      return;
+    }
+
+    const responses = errorMessages["message-deleted"]({ message });
+    const response = responses[Math.floor(Math.random() * responses.length)];
+    const botMessage = await channel.send(response);
+
+    state.reset(botMessage.id);
+  });
+
   client.on(Events.MessageUpdate, (_oldMessage, message) => {
     messagesQueue.push(async () => {
       // Ignore messages from other channels
