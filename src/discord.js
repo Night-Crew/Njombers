@@ -1,12 +1,12 @@
 // Require the necessary discord.js classes
 import { Client, Events, GatewayIntentBits, REST, Routes } from "discord.js";
 import { config } from "./config.js";
-import { checkValidity, findStreak } from "./rules.js";
+import { checkValidity } from "./rules.js";
 import state from "./state.js";
 import { Queue } from "./queue.js";
 import pkg from "../package.json" assert { type: "json" };
 import { errorMessages, errorNames } from "./error-messages.js";
-import { formatDistance, differenceInMinutes } from "date-fns";
+import { format, formatDistance, differenceInMinutes } from "date-fns";
 import nl from "date-fns/locale/nl-BE/index.js";
 
 let client;
@@ -248,19 +248,30 @@ export async function initClient() {
     mostRecentMessages.add(message);
   }
 
-  // Find current streak
-  const streak = findStreak(Array.from(messagesCache.values()), config);
-  if (streak.valid) {
-    state.currentNumber = streak.number - 1;
-  } else {
-    state.currentNumber = 0;
+  // Build debugging messages for the most recent messages
+  let debuggingRecentMessages = [];
+  for (let message of mostRecentMessages.messages()) {
+    debuggingRecentMessages.push(
+      `- ${message.url} — ${message.author.displayName} (${format(
+        message.createdAt,
+        "pp",
+        {
+          locale: nl,
+        },
+      )}): ${message.content.split(" ")[0]}`,
+    );
   }
 
-  if (streak.message) {
-    handleMessage(streak.message);
+  // Assume most recent message is the current streak
+  {
+    let mostRecentMessage = messagesCache.values().next().value;
+    if (mostRecentMessage) {
+      const match = mostRecentMessage.content.match(/^\d+/);
+      if (match) {
+        state.currentNumber = Number(match[0]);
+      }
+    }
   }
-
-  console.log("Continuing from streak:", state.currentNumber);
 
   debugChannel.send(
     [
@@ -273,6 +284,9 @@ export async function initClient() {
       "```json",
       state.toJSON(),
       "```",
+      "",
+      "Most recent messages from:",
+      debuggingRecentMessages.join("\n"),
     ].join("\n"),
   );
 
