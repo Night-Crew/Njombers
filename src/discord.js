@@ -262,6 +262,20 @@ export async function initClient() {
 
   console.log("Continuing from streak:", state.currentNumber);
 
+  debugChannel.send(
+    [
+      "### Bot started.",
+      "",
+      `- Continuing from streak: ${state.currentNumber}`,
+      `- Current version: ${pkg.version}`,
+      "",
+      "Current state:",
+      "```json",
+      state.toJSON(),
+      "```",
+    ].join("\n"),
+  );
+
   client.on(Events.MessageDelete, async (message) => {
     // Ignore messages from other channels
     if (message.channelId !== config.channelId) return;
